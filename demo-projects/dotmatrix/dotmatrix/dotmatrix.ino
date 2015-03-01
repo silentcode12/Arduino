@@ -1,11 +1,14 @@
-
-//taken from http://www.coranac.com/tonc/text/text.htm
+//Each character for the 8x8 display is 8 bytes in size.  
+//The Arduino long data type is four bytes, so two longs can represent a single character.
+//This table is a 1 bit per pixel lookup for standard ASCII characters (plus some "special" additions)..
 const unsigned long fontTable[] =
 {
+    //my own creations
     0xbdff7e18, 0x815a24ff, //alien
     0x7e4a3c82, 0x6681bde7, //bulldog
     0xffff6600, 0x183c3c7e, //heart
   
+    //taken from http://www.coranac.com/tonc/text/text.htm. A great write up!
     0x00000000, 0x00000000, 0x18181818, 0x00180018, 0x00003636, 0x00000000, 0x367F3636, 0x0036367F, 
     0x3C067C18, 0x00183E60, 0x1B356600, 0x0033566C, 0x6E16361C, 0x00DE733B, 0x000C1818, 0x00000000, 
     0x0C0C1830, 0x0030180C, 0x3030180C, 0x000C1830, 0xFF3C6600, 0x0000663C, 0x7E181800, 0x00001818, 
@@ -34,6 +37,7 @@ const unsigned long fontTable[] =
     0x18181818, 0x00181818, 0x3018180C, 0x000C1818, 0x003B6E00, 0x00000000, 0x00000000, 0x00000000, 
 };
 
+//Circuit design and code adapted from the SunFounder super kit project 12 Dot matrix Display
 const int latchPin = 8; //Pin connected to ST_CP of 74HC595
 const int clockPin = 12; //Pin connected to SH_CP of 74HC595 
 const int dataPin = 11; //Pin connected to DS of 74HC595 
@@ -45,26 +49,33 @@ void setup()
   pinMode(dataPin, OUTPUT);
 }
 
+//Writes out eight bytes of data to fill the 8x8 LED display
 void DisplayCharacter(unsigned long rows1_4, unsigned long rows5_8)
 {
+  //Start the row select at binary 10000000.  The will be shifted to the right as each row is displayed.
   int rowSelect = 0x80;
   
   for (int fourRowSelect = 0; fourRowSelect < 2; fourRowSelect++)
   {
-    unsigned long fourRows = fourRowSelect == 0 ? ~rows1_4 : ~rows5_8;
+    //Process first four rows and then the second for rows.
+    unsigned long fourRows = fourRowSelect == 0 ? ~rows1_4 : ~rows5_8;  //For common anode negate the bits so that the characters are not negative.
     
+    //Cycle through the four bytes of data
     for (int rowIndex = 0; rowIndex < 4; rowIndex++)
     {
-        digitalWrite(latchPin, LOW); 
+        digitalWrite(latchPin, LOW); //Set low while writing out data.
         
-        unsigned long row = fourRows >> ((rowIndex) * 8);
+        unsigned char row = fourRows >> ((rowIndex) * 8);  //shift out can only write a single byte.  Extract each successive byte with each pass.
 
         shiftOut(dataPin, clockPin, LSBFIRST, row);        
         shiftOut(dataPin, clockPin, LSBFIRST, rowSelect);    
         
-        rowSelect = rowSelect >> 1;
+        rowSelect = rowSelect >> 1;  //Select the next row
        
-        digitalWrite(latchPin, HIGH);        
+        digitalWrite(latchPin, HIGH); //Set high to latch the data to the output       
+        
+        //for fun play with the delay to see each row get written.
+        //delay(250);
     }
   }
 }
@@ -72,6 +83,7 @@ void DisplayCharacter(unsigned long rows1_4, unsigned long rows5_8)
 unsigned long lastMillis = 0;
 int fontCharacterIndex = 0;
 
+//After the duration has been exceeded the fontCharacterIndex is incremented to the next character.
 void ProgressToNextCharacterAfterDuration(int duration)
 {
     unsigned long currentMillis = millis();
