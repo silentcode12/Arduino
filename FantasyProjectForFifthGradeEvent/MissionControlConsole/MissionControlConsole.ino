@@ -1,7 +1,7 @@
 //This is a simple movie prop project to simulate a fantasy NASA style console with fun light displays and simple user inputs.
 //This project utilizes four dip switches, an 8x8 dotmatrix display, an eight digit segment display and a strip of rgb addressable leds;
 //The eight digit segment display is a simple game of reach the target value.  One dip switch controls the direction and the other the speed of ascent or descent.
-//The dog matrix display shows a scrolling bar graph of random height, a dip switch controls the speed (fast/slow).
+//The dot matrix display shows a scrolling bar graph of random height, a dip switch controls the speed (fast/slow).
 //The addressable strip of 5 LEDs displays one of two random patterns, the remaining dip switch changes the pattern.
 #include <PololuLedStrip.h>
 #include "LedControl.h"
