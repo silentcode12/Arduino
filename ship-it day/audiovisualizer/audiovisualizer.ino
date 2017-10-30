@@ -50,16 +50,28 @@ lastMillis = millisNow;
   
 dotMatrix.setRow(0,0,0xff);
 dotMatrix.setRow(1,2,0xff);
-dotMatrix.clearDisplay(2);
-dotMatrix.setRow(2,ema_2.s,0xff);
-dotMatrix.clearDisplay(3);
-dotMatrix.setRow(3,ema_3.s,0xff);
+drawBar(2, ema_2);
+drawBar(3, ema_3);
 }
 
 //Exponential Moving Average
 //https://www.norwegiancreations.com/2015/10/tutorial-potentiometers-with-arduino-and-filtering/
 void sample(int sensorValue, EMA& ema){
   ema.s = (ema.a * sensorValue) + ((1-ema.a)*ema.s);    //run the EMA
+}
+
+void drawBar(int addr, EMA& ema){
+  int row = 8;
+  
+  while (--row >= 0)
+  {
+    if (ema.s >= row){
+      dotMatrix.setRow(addr,row,0xff);
+      }
+    else{
+      dotMatrix.setRow(addr,row,0x00);
+      }
+  }
 }
 
     
