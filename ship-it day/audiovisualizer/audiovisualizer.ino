@@ -1,6 +1,6 @@
 #include "LedControl.h"
 
-int scaler = 32;
+int scaler = 64;
 
 //Initialize the dot matrix display controller
 //pin 12, DataIn
@@ -9,6 +9,8 @@ int scaler = 32;
 //We have 4 x MAX72XX.
 
 LedControl dotMatrix = LedControl(12,11,10,4);
+
+const byte interruptPin = 2;
 
 typedef struct 
 {
@@ -26,12 +28,12 @@ typedef struct
 EMA_BAND ema_leftLow = { (EMA){.1, 0}, (EMA){.3,0} };
 EMA_BAND ema_leftMid = { (EMA){.4, 0}, (EMA){.6,0} };
 EMA_BAND ema_leftHigh = { (EMA){.7, 0}, (EMA){.9,0} };
-EMA ema_leftVu = {.25, 0};
+EMA ema_leftVu = {.2, 0};
 
 EMA_BAND ema_rightLow = { (EMA){.1, 0}, (EMA){.3,0} };
 EMA_BAND ema_rightMid = { (EMA){.4, 0}, (EMA){.6,0} };
 EMA_BAND ema_rightHigh = { (EMA){.7, 0}, (EMA){.9,0} };
-EMA ema_rightVu = {.25, 0};
+EMA ema_rightVu = {.2, 0};
     
 void setup() 
 {
@@ -47,6 +49,26 @@ void setup()
   ema_rightVu.s = ema_rightLow.low.s = ema_rightLow.high.s = ema_rightMid.low.s = ema_rightMid.high.s = ema_rightHigh.low.s = ema_rightHigh.high.s = analogRead(1)/scaler;
   
   analogReference(INTERNAL);
+
+  pinMode(interruptPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(interruptPin), modeChange, CHANGE);
+}
+
+volatile bool mode = false;
+
+void modeChange(){
+  mode = !mode;
+
+  if (mode)
+  {
+    scaler = 16;
+    ema_leftVu.a = ema_rightVu.a = .4;
+  }
+  else
+  {
+    scaler = 64;
+    ema_leftVu.a = ema_rightVu.a = .25;
+  }  
 }
 
 volatile long lastMillis = 0;
@@ -72,10 +94,18 @@ void loop() {
   {
     lastMillis = millisNow;
 
-    drawBar(3, ema_leftVu.s, ema_rightVu.s);
-    drawBar(0, ema_leftLow.bandpass, ema_rightLow.bandpass);
-    drawBar(1, ema_leftMid.bandpass, ema_rightMid.bandpass);
-    drawBar(2, ema_leftHigh.bandpass, ema_rightHigh.bandpass);     
+    if (scaler > 16)
+    {
+      drawvBar(3, ema_leftVu.s, ema_rightVu.s);
+      drawvBar(0, ema_leftLow.bandpass, ema_rightLow.bandpass);
+      drawvBar(1, ema_leftMid.bandpass, ema_rightMid.bandpass);
+      drawvBar(2, ema_leftHigh.bandpass, ema_rightHigh.bandpass);
+    }
+    
+    if (scaler <= 16)
+    {
+      drawhBar(ema_leftVu.s, ema_rightVu.s);
+    }
   }
 }
 
@@ -93,7 +123,7 @@ void bandPass(int sensorValue, EMA_BAND& bandEma){
   bandEma.bandpass = bandEma.high.s - bandEma.low.s;      //find the band-pass  
 }
 
-void drawBar(int addr, int left, int right){
+void drawvBar(int addr, int left, int right){
   int row = 8;
   
   while (--row >= 0)
@@ -111,6 +141,30 @@ void drawBar(int addr, int left, int right){
     }
 
     dotMatrix.setRow(addr, row, v);
+  }
+}
+
+void drawhBar(int left, int right)
+{    
+  for (int addr = 0; addr < 4; addr++)
+  {  
+    int column = 8;
+    while (--column >= 0)
+    {
+      int v = 0;
+      
+      if (left >= column + (addr * 8))
+      {
+        v |= 0xe0;
+      }
+  
+      if (right >= column + (addr * 8))
+      {
+        v |= 0x0e;
+      }
+  
+      dotMatrix.setColumn(addr, 7 - column, v);    
+    }
   }
 }
 
