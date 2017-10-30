@@ -1,5 +1,7 @@
 #include "LedControl.h"
 
+int scaler = 32;
+
 //Initialize the dot matrix display controller
 //pin 12, DataIn
 //pin 11, CLK
@@ -10,62 +12,95 @@ LedControl dotMatrix = LedControl(12,11,10,4);
 
 typedef struct 
 {
-  int sensorPin;      //pin number to use the ADC
   float a;      //initialization of EMA alpha
-  int s;          //initialization of EMA S
+  long s;        //initialization of EMA S
 } EMA;
 
-EMA ema_2 = {2, 1, 0};
-EMA ema_3 = {3, 1, 0};
+typedef struct
+{
+  EMA low;
+  EMA high;
+  long bandpass;
+} EMA_BAND;
+
+EMA_BAND ema_leftLow = { (EMA){.2, 0}, (EMA){.3,0} };
+EMA_BAND ema_leftMid = { (EMA){.3, 0}, (EMA){.5,0} };
+EMA_BAND ema_leftHigh = { (EMA){.7, 0}, (EMA){.9,0} };
+EMA ema_leftVu = {1, 0};
+
+EMA_BAND ema_rightLow = { (EMA){.2, 0}, (EMA){.3,0} };
+EMA_BAND ema_rightMid = { (EMA){.3, 0}, (EMA){.5,0} };
+EMA_BAND ema_rightHigh = { (EMA){.7, 0}, (EMA){.9,0} };
+EMA ema_rightVu = {1, 0};
     
-void setup() {
+void setup() 
+{
   // put your setup code here, to run once:
-  for(int x=0;x<4;x++){
-dotMatrix.shutdown(x, false);
-dotMatrix.setIntensity(x, 1);
-dotMatrix.clearDisplay(x);
-}
-
-ema_2.s = analogRead(ema_2.sensorPin);  //set EMA S for t=1
-ema_3.s = analogRead(ema_3.sensorPin);  //set EMA S for t=1
-}
-
-int lastMillis = 0;
-void loop() {
-  // put your main code here, to run repeatedly:
-
-int a0 = analogRead(0);
-int a1 = analogRead(1);
-int a2 = analogRead(ema_2.sensorPin)/128;
-int a3 = analogRead(ema_3.sensorPin)/128;
-
-sample(a2, ema_2);
-sample(a3, ema_3);
-
-int millisNow = millis();
-
-if (millisNow - lastMillis < 50) return;
-
-lastMillis = millisNow;
+  for(int x=0;x<4;x++)
+  {
+    dotMatrix.shutdown(x, false);
+    dotMatrix.setIntensity(x, 1);
+    dotMatrix.clearDisplay(x);
+  }
   
-dotMatrix.setRow(0,0,0xff);
-dotMatrix.setRow(1,2,0xff);
-drawBar(2, ema_2);
-drawBar(3, ema_3);
+  ema_leftVu.s = ema_leftLow.low.s = ema_leftLow.high.s = ema_leftMid.low.s = ema_leftMid.high.s = ema_leftHigh.low.s = ema_leftHigh.high.s = analogRead(0)/scaler;
+  ema_rightVu.s = ema_rightLow.low.s = ema_rightLow.high.s = ema_rightMid.low.s = ema_rightMid.high.s = ema_rightHigh.low.s = ema_rightHigh.high.s = analogRead(1)/scaler;
+  
+  analogReference(INTERNAL);
+  
+  Serial.begin(9600);
+}
+
+volatile long lastMillis = 0;
+
+void loop() {
+  long millisNow = millis();
+    
+  int a0 = analogRead(0)/scaler;
+  ema(a0, ema_leftVu);
+  bandPass(a0, ema_leftLow);
+  bandPass(a0, ema_leftMid);
+  bandPass(a0, ema_leftHigh);        
+
+  int a1 = analogRead(1)/scaler;
+  ema(a1, ema_rightVu);
+  bandPass(a1, ema_rightLow);
+  bandPass(a1, ema_rightMid);
+  bandPass(a1, ema_rightHigh); 
+  //~800uS for each sample
+  //~1.25KHz sampling
+
+  if (millisNow - lastMillis > 20) 
+  {
+    lastMillis = millisNow;
+
+    drawBar(3, ema_leftVu.s);
+    drawBar(0, ema_leftLow.bandpass);
+    drawBar(1, ema_leftMid.bandpass);
+    drawBar(2, ema_leftHigh.bandpass);     
+  }
 }
 
 //Exponential Moving Average
 //https://www.norwegiancreations.com/2015/10/tutorial-potentiometers-with-arduino-and-filtering/
-void sample(int sensorValue, EMA& ema){
+void ema(int sensorValue, EMA& ema){
   ema.s = (ema.a * sensorValue) + ((1-ema.a)*ema.s);    //run the EMA
 }
 
-void drawBar(int addr, EMA& ema){
+void bandPass(int sensorValue, EMA_BAND& bandEma){
+  ema(sensorValue, bandEma.low);
+  ema(sensorValue, bandEma.high);
+   
+  int highpass = sensorValue - bandEma.low.s;     //find the high-pass as before (for comparison)
+  bandEma.bandpass = bandEma.high.s - bandEma.low.s;      //find the band-pass  
+}
+
+void drawBar(int addr, int value){
   int row = 8;
   
   while (--row >= 0)
   {
-    if (ema.s >= row){
+    if (value >= row){
       dotMatrix.setRow(addr,row,0xff);
       }
     else{
