@@ -23,15 +23,15 @@ typedef struct
   long bandpass;
 } EMA_BAND;
 
-EMA_BAND ema_leftLow = { (EMA){.2, 0}, (EMA){.3,0} };
-EMA_BAND ema_leftMid = { (EMA){.3, 0}, (EMA){.5,0} };
+EMA_BAND ema_leftLow = { (EMA){.1, 0}, (EMA){.3,0} };
+EMA_BAND ema_leftMid = { (EMA){.4, 0}, (EMA){.6,0} };
 EMA_BAND ema_leftHigh = { (EMA){.7, 0}, (EMA){.9,0} };
-EMA ema_leftVu = {1, 0};
+EMA ema_leftVu = {.25, 0};
 
-EMA_BAND ema_rightLow = { (EMA){.2, 0}, (EMA){.3,0} };
-EMA_BAND ema_rightMid = { (EMA){.3, 0}, (EMA){.5,0} };
+EMA_BAND ema_rightLow = { (EMA){.1, 0}, (EMA){.3,0} };
+EMA_BAND ema_rightMid = { (EMA){.4, 0}, (EMA){.6,0} };
 EMA_BAND ema_rightHigh = { (EMA){.7, 0}, (EMA){.9,0} };
-EMA ema_rightVu = {1, 0};
+EMA ema_rightVu = {.25, 0};
     
 void setup() 
 {
@@ -39,7 +39,7 @@ void setup()
   for(int x=0;x<4;x++)
   {
     dotMatrix.shutdown(x, false);
-    dotMatrix.setIntensity(x, 1);
+    dotMatrix.setIntensity(x, 8);
     dotMatrix.clearDisplay(x);
   }
   
@@ -47,8 +47,6 @@ void setup()
   ema_rightVu.s = ema_rightLow.low.s = ema_rightLow.high.s = ema_rightMid.low.s = ema_rightMid.high.s = ema_rightHigh.low.s = ema_rightHigh.high.s = analogRead(1)/scaler;
   
   analogReference(INTERNAL);
-  
-  Serial.begin(9600);
 }
 
 volatile long lastMillis = 0;
@@ -70,14 +68,14 @@ void loop() {
   //~800uS for each sample
   //~1.25KHz sampling
 
-  if (millisNow - lastMillis > 20) 
+  if (millisNow - lastMillis > 50) 
   {
     lastMillis = millisNow;
 
-    drawBar(3, ema_leftVu.s);
-    drawBar(0, ema_leftLow.bandpass);
-    drawBar(1, ema_leftMid.bandpass);
-    drawBar(2, ema_leftHigh.bandpass);     
+    drawBar(3, ema_leftVu.s, ema_rightVu.s);
+    drawBar(0, ema_leftLow.bandpass, ema_rightLow.bandpass);
+    drawBar(1, ema_leftMid.bandpass, ema_rightMid.bandpass);
+    drawBar(2, ema_leftHigh.bandpass, ema_rightHigh.bandpass);     
   }
 }
 
@@ -95,17 +93,24 @@ void bandPass(int sensorValue, EMA_BAND& bandEma){
   bandEma.bandpass = bandEma.high.s - bandEma.low.s;      //find the band-pass  
 }
 
-void drawBar(int addr, int value){
+void drawBar(int addr, int left, int right){
   int row = 8;
   
   while (--row >= 0)
   {
-    if (value >= row){
-      dotMatrix.setRow(addr,row,0xff);
-      }
-    else{
-      dotMatrix.setRow(addr,row,0x00);
-      }
+    int v = 0;
+    
+    if (left >= row)
+    {
+      v |= 0xe0;
+    }
+
+    if (right >= row)
+    {
+      v |= 0x0e;
+    }
+
+    dotMatrix.setRow(addr, row, v);
   }
 }
 
