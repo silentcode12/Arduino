@@ -41,7 +41,7 @@ void loop () {
 
 	display.clearDisplay();
   
-  display.setTextSize(3);
+  display.setTextSize(2);
 	display.setTextColor(WHITE);
 	display.setCursor(0,0);
 
@@ -54,7 +54,7 @@ void loop () {
   printNumber(now.second());
   display.println();
   display.println();
-  display.println();
+  //display.println();
 
   display.print(daysOfTheWeek[now.dayOfTheWeek()]);
 
@@ -66,17 +66,15 @@ void loop () {
   printNumber(now.day());
   display.println();
 
-  display.setTextSize(2);
+  display.setTextSize(1);
   //display.print(bme280.readTempC(), 2);
   //display.print("C, ");
 
-  display.print(bme280.readTempF(), 2);
+  display.print(bme280.readTempF(), 1);
   display.setTextSize(1);
-  display.print("  o");
-  display.setTextSize(2);
-  display.println("F");
+  display.print("F, ");
 
-  display.print(bme280.readFloatHumidity(), 2);
+  display.print(bme280.readFloatHumidity(), 1);
   display.println(" %RH");
   
   //display.print(bme280.readFloatPressure(), 2);
