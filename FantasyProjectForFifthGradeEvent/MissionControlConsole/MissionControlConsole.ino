@@ -16,21 +16,21 @@ rgb_color colors[LED_COUNT];
 
 /*
  Initialize the dot matrix display controller
- pin 12, DataIn
- pin 11, CLK
- pin 10, LOAD/CS
+ pin 10, DataIn
+ pin 12, CLK
+ pin 11, LOAD/CS
  We have only a single MAX72XX.
  */
-LedControl dotMatrix = LedControl(12,11,10,1);
+LedControl dotMatrix = LedControl(10,12,11,1);
 
 /*
  Initialize the segment display controller
- pin 6, DataIn
- pin 7, CLK
+ pin 7, DataIn
+ pin 9, CLK
  pin 8, LOAD/CS
  We have only a single MAX72XX.
  */
-LedControl segmentDisplay=LedControl(6, 7, 8, 1);
+LedControl segmentDisplay=LedControl(7, 9, 8, 1);
 
 //Initialize the led strip controller
 PololuLedStrip<13> ledStrip;
