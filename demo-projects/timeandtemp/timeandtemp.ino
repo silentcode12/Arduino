@@ -36,7 +36,7 @@ IRrecv irrecv(RECV_PIN);
 decode_results results;
 
 int key = ZERO;
-int textSize = 2;
+volatile int textSize = 2;
 
 #define OLED_RESET 4
 
@@ -51,9 +51,9 @@ void setup () {
     while (1);
   }
 
-  if (rtc.lostPower()) {
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  }
+  //if (rtc.lostPower()) {
+   // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  //}
   
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 
@@ -69,6 +69,44 @@ void setup () {
 
   Serial.begin(9600);
   irrecv.enableIRIn(); // Start the receiver
+
+  pinMode(2, INPUT_PULLUP);
+  pinMode(3, INPUT_PULLUP);
+  
+  attachInterrupt(digitalPinToInterrupt(2), pin2ISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(3), pin3ISR, FALLING);
+}
+
+volatile long lastFall = 0;
+
+void pin2ISR(){
+  volatile int currentValue = digitalRead(2);
+
+  if (currentValue == HIGH)
+    return;  //We were falling but now we're high
+
+  volatile long now = millis();
+
+  if (now - lastFall < 500)
+  {
+      return;  //too quick, likely bounce, ignore
+  }
+
+lastFall = now;
+currentValue = digitalRead(2);
+if (currentValue == HIGH)
+    return;  //We were falling but now we're high
+
+  Serial.println("down");
+
+  if (textSize + 1 > 4)
+    textSize = 1;
+  else
+    textSize++;
+}
+
+void pin3ISR(){
+  Serial.println("pin3ISR");
 }
 
 void processKeyPress(int key)
@@ -185,9 +223,13 @@ void loop () {
   printNumber(now.hour());
   display.print(':');
   printNumber(now.minute());
-  //display.print(':');
+  if (textSize == 1)
+    display.print(':');
+  
+  if (textSize < 4){
   display.setTextSize(1);
   printNumber(now.second());
+  }
   
   for(int x = textSize; x > 0; x--)
   {
