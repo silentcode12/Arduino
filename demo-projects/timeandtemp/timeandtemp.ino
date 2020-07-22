@@ -156,29 +156,38 @@ void loop () {
   printNumber(now.day());
   display.println();
 
+  int supTextSize = 2;
+
+  if (textSize < 3)
+    supTextSize = 1;
+
   display.setTextSize(1);
-  //display.print(bme280.readTempC(), 2);
-  //display.print("C, ");
+  display.println();
+  display.setTextSize(supTextSize);
 
   UpdateEma(tempF, bme280.readTempF() - 10.0);
   display.print(tempF.s, 1);
   display.setTextSize(1);
-  display.print("  o");
-  display.setTextSize(1);
   display.print("F ");
 
   UpdateEma(percentRH, bme280.readFloatHumidity());
+  display.setTextSize(supTextSize);
   display.print(percentRH.s, 1);
-  display.println(" %RH");
+  display.setTextSize(1);
+  display.println("%");
 
-  UpdateEma(preasureKpa, bme280.readFloatPressure());
-  display.print(preasureKpa.s/1000.0, 2);
-  display.print(" KPa, ");
-
-  UpdateEma(altFeet, bme280.readFloatAltitudeFeet());
-  display.print(altFeet.s, 2);
-  display.println(" ft"); 
-
+  if (textSize < 3)
+  {
+    display.setTextSize(supTextSize);
+    UpdateEma(preasureKpa, bme280.readFloatPressure());
+    display.print(preasureKpa.s/1000.0, 2);
+    display.print(" KPa, ");
+  
+    UpdateEma(altFeet, bme280.readFloatAltitudeFeet());
+    display.print(altFeet.s, 2);
+    display.println(" ft"); 
+  }
+  
   display.display();
   delay(250);
 }
