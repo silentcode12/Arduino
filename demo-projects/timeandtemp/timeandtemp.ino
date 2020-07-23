@@ -6,6 +6,8 @@ volatile int textSize = 3;
 
 #define OLED_RESET 4
 #define BUTTON_PIN 2
+#define RTC_SQW_PIN 3
+#define RTC_32K_PIN 5
 
 Adafruit_SSD1306 display(OLED_RESET);
 RTC_DS3231 rtc;
@@ -41,6 +43,8 @@ void setup () {
   //if (rtc.lostPower()) {
    // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   //}
+
+  rtc.writeSqwPinMode(Ds3231SqwPinMode::DS3231_SquareWave1Hz);
   
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 
@@ -56,8 +60,8 @@ void setup () {
 
   Serial.begin(9600);
 
-  pinMode(4, INPUT);         //Square wave from rtc, useless as no interop on nano
-  pinMode(5, INPUT);         //32K from rtc, useless as no interop on nano
+  pinMode(RTC_SQW_PIN, INPUT);         //Square wave from rtc
+  pinMode(RTC_32K_PIN, INPUT);        //32K from rtc, useless as no interop on nano
   pinMode(BUTTON_PIN, INPUT_PULLUP);  //Button pin
 
   //Prime the first value to avoid initial homing of average from zero.
@@ -67,9 +71,14 @@ void setup () {
   preasureKpa.s = bme280.readFloatPressure();
 
   attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), pin2ISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, FALLING);
 }
 
 volatile long lastFall = 0;
+
+void pin3ISR(){
+  Serial.println("pin2ISR");  
+}
 
 void pin2ISR(){
   volatile int currentValue = digitalRead(BUTTON_PIN);
