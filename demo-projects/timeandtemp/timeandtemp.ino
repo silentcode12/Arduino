@@ -3,17 +3,19 @@
 #include <SparkFunBME280.h>
 
 volatile int textSize = 3;
+volatile DateTime dateTime;
 
 #define OLED_RESET 4
 #define BUTTON_PIN 2
 #define RTC_SQW_PIN 3
 #define RTC_32K_PIN 5
+#define TEMP_CORRECTION -10.0
 
 Adafruit_SSD1306 display(OLED_RESET);
 RTC_DS3231 rtc;
 BME280 bme280;
 
-char daysOfTheWeek[7][12] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+char daysOfTheWeek[7][3] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
 typedef struct 
 {
@@ -22,10 +24,9 @@ typedef struct
 } EMA;
 
 EMA percentRH {0.1, 0};
-EMA tempF {0.9, 0};
-EMA altMeters {0.1, 0};
-EMA altFeet {0.1, 0};
-EMA preasureKpa {0.1, 0};
+EMA temperature {0.9, 0};
+EMA altitude {0.1, 0};
+EMA pressure {0.1, 0};
 
 //Exponential Moving Average
 //https://www.norwegiancreations.com/2015/10/tutorial-potentiometers-with-arduino-and-filtering/
@@ -45,6 +46,7 @@ void setup () {
   //}
 
   rtc.writeSqwPinMode(Ds3231SqwPinMode::DS3231_SquareWave1Hz);
+  dateTime = rtc.now();
   
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 
@@ -66,18 +68,25 @@ void setup () {
 
   //Prime the first value to avoid initial homing of average from zero.
   percentRH.s = bme280.readFloatHumidity();
-  tempF.s = bme280.readTempF();
-  altFeet.s = bme280.readFloatAltitudeFeet();
-  preasureKpa.s = bme280.readFloatPressure();
+  temperature.s = bme280.readTempF() + TEMP_CORRECTION;
+  altitude.s = bme280.readFloatAltitudeFeet();
+  pressure.s = bme280.readFloatPressure();
 
   attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), pin2ISR, FALLING);
-  attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
 }
 
 volatile long lastFall = 0;
 
 void pin3ISR(){
-  Serial.println("pin2ISR");  
+  interrupts(); //Enable interrupts so that I2C communication can work, equivalent to sei();
+
+  dateTime = rtc.now();
+  UpdateEma(temperature, bme280.readTempF() + TEMP_CORRECTION);
+  UpdateEma(percentRH, bme280.readFloatHumidity());
+  UpdateEma(pressure, bme280.readFloatPressure());
+  UpdateEma(altitude, bme280.readFloatAltitudeFeet());
+  UpdateDisplay();
 }
 
 void pin2ISR(){
@@ -107,11 +116,13 @@ if (currentValue == HIGH)
 }
 
 void loop () {
-  DateTime now = rtc.now();
+  delay(250);
+}
 
-	display.clearDisplay();
-	display.setTextColor(WHITE);
-	display.setCursor(0,0);
+void UpdateDisplay(){
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
 
   if (textSize == 4)
   {
@@ -139,15 +150,15 @@ void loop () {
   
   display.setTextSize(textSize);
   display.print("");
-  printNumber(now.hour());
+  printNumber(dateTime.hour());
   display.print(':');
-  printNumber(now.minute());
+  printNumber(dateTime.minute());
   if (textSize == 1)
     display.print(':');
   
   if (textSize < 4){
   display.setTextSize(1);
-  printNumber(now.second());
+  printNumber(dateTime.second());
   }
   
   for(int x = textSize; x > 0; x--)
@@ -155,14 +166,14 @@ void loop () {
     display.println();
   }
 
-  display.print(daysOfTheWeek[now.dayOfTheWeek()]);
+  display.print(daysOfTheWeek[dateTime.dayOfTheWeek()]);
 
   display.print(" ");
-  display.print(now.year(), DEC);
+  display.print(dateTime.year(), DEC);
   display.print('/');
-  printNumber(now.month());
+  printNumber(dateTime.month());
   display.print('/');
-  printNumber(now.day());
+  printNumber(dateTime.day());
   display.println();
 
   int supTextSize = 2;
@@ -174,12 +185,10 @@ void loop () {
   display.println();
   display.setTextSize(supTextSize);
 
-  UpdateEma(tempF, bme280.readTempF() - 10.0);
-  display.print(tempF.s, 1);
+  display.print(temperature.s, 1);
   display.setTextSize(1);
   display.print("F ");
-
-  UpdateEma(percentRH, bme280.readFloatHumidity());
+  
   display.setTextSize(supTextSize);
   display.print(percentRH.s, 1);
   display.setTextSize(1);
@@ -188,17 +197,16 @@ void loop () {
   if (textSize < 3)
   {
     display.setTextSize(supTextSize);
-    UpdateEma(preasureKpa, bme280.readFloatPressure());
-    display.print(preasureKpa.s/1000.0, 2);
+    
+    display.print(altitude.s/1000.0, 2);
     display.print(" KPa, ");
   
-    UpdateEma(altFeet, bme280.readFloatAltitudeFeet());
-    display.print(altFeet.s, 2);
+    display.print(altitude.s, 2);
     display.println(" ft"); 
   }
   
   display.display();
-  delay(250);
+  
 }
 
 void printNumber(int number)
