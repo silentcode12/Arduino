@@ -2,27 +2,33 @@
 #include <RTClib.h>
 #include <SparkFunBME280.h>
 
-volatile int textSize = 3;
-volatile DateTime dateTime;
-
-#define OLED_RESET 4
-#define BUTTON_PIN 2
-#define RTC_SQW_PIN 3
-#define RTC_32K_PIN 5
-#define TEMP_CORRECTION -10.0
-
-Adafruit_SSD1306 display(OLED_RESET);
-RTC_DS3231 rtc;
-BME280 bme280;
-
-char daysOfTheWeek[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-
+//Data type definitions
 typedef struct 
 {
   float a;      //initialization of EMA alpha
   float s;      //initialization of EMA S
 } EMA;
 
+//Constants
+#define OLED_RESET 4
+#define BUTTON_PIN 2
+#define RTC_SQW_PIN 3
+#define RTC_32K_PIN 5
+#define TEMP_CORRECTION -10.0
+
+const char daysOfTheWeek[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+
+//Variables
+volatile int textSize = 3;
+volatile DateTime dateTime;
+volatile long lastFall = 0;
+
+//I2C devices
+Adafruit_SSD1306 display(OLED_RESET);
+RTC_DS3231 rtc;
+BME280 bme280;
+
+//BME280 readings
 EMA percentRH {0.1, 0};
 EMA temperature {0.9, 0};
 EMA altitude {0.1, 0};
@@ -35,8 +41,11 @@ void UpdateEma(EMA& ema, float sample)
   ema.s = (ema.a * sample) + ((1-ema.a)*ema.s);    //run the EMA
 }
 
-void setup () {
-  if (! rtc.begin()) {
+void setup () 
+{
+  //Configure the RTC
+  if (! rtc.begin()) 
+  {
     while (1);
   }
 
@@ -47,9 +56,11 @@ void setup () {
 
   rtc.writeSqwPinMode(Ds3231SqwPinMode::DS3231_SquareWave1Hz);
   dateTime = rtc.now();
-  
+
+  //Initialize the display
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 
+  //Configure the BME2800
   bme280.settings.commInterface = I2C_MODE;
   bme280.settings.I2CAddress = 0x76;
   bme280.settings.runMode = 3; //Normal mode
@@ -60,8 +71,10 @@ void setup () {
   bme280.settings.humidOverSample = 1;
   bme280.begin();
 
+  //Start the serial comm
   Serial.begin(9600);
 
+  //Setup input pins
   pinMode(RTC_SQW_PIN, INPUT);         //Square wave from rtc
   pinMode(RTC_32K_PIN, INPUT);        //32K from rtc, useless as no interop on nano
   pinMode(BUTTON_PIN, INPUT_PULLUP);  //Button pin
@@ -72,13 +85,13 @@ void setup () {
   altitude.s = bme280.readFloatAltitudeFeet();
   pressure.s = bme280.readFloatPressure();
 
+  //Setup interrupts
   attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), pin2ISR, FALLING);
   attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
 }
 
-volatile long lastFall = 0;
-
-void pin3ISR(){
+void pin3ISR()
+{
   interrupts(); //Enable interrupts so that I2C communication can work, equivalent to sei();
 
   dateTime = rtc.now();
@@ -89,7 +102,8 @@ void pin3ISR(){
   UpdateDisplay();
 }
 
-void pin2ISR(){
+void pin2ISR()
+{
   volatile int currentValue = digitalRead(BUTTON_PIN);
 
   if (currentValue == HIGH)
@@ -102,10 +116,10 @@ void pin2ISR(){
       return;  //too quick, likely bounce, ignore
   }
 
-lastFall = now;
-currentValue = digitalRead(BUTTON_PIN);
-if (currentValue == HIGH)
-    return;  //We were falling but now we're high
+  lastFall = now;
+  currentValue = digitalRead(BUTTON_PIN);
+  if (currentValue == HIGH)
+      return;  //We were falling but now we're high
 
   Serial.println("down");
 
@@ -115,11 +129,13 @@ if (currentValue == HIGH)
     textSize++;
 }
 
-void loop () {
+void loop () 
+{
   delay(250);
 }
 
-void UpdateDisplay(){
+void UpdateDisplay()
+{
   display.clearDisplay();
   display.setTextColor(WHITE);
   display.setCursor(0,0);
