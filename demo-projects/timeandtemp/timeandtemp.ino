@@ -15,7 +15,7 @@ Adafruit_SSD1306 display(OLED_RESET);
 RTC_DS3231 rtc;
 BME280 bme280;
 
-char daysOfTheWeek[7][3] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+char daysOfTheWeek[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
 typedef struct 
 {
