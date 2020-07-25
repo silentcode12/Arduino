@@ -156,7 +156,7 @@ void UpdateDisplay()
     display.setTextSize(1);
     display.println();
   }
-   else if (textSize == 1)
+  else if (textSize == 1)
   {
     display.setTextSize(1);
     display.println();
@@ -165,7 +165,7 @@ void UpdateDisplay()
   }
   
   display.setTextSize(textSize);
-  display.print("");
+  display.print(" ");
   printNumber(dateTime.hour());
   display.print(':');
   printNumber(dateTime.minute());
@@ -182,6 +182,7 @@ void UpdateDisplay()
     display.println();
   }
 
+  display.print("   ");
   display.print(daysOfTheWeek[dateTime.dayOfTheWeek()]);
 
   display.print(" ");
@@ -203,10 +204,31 @@ void UpdateDisplay()
 
   display.print(temperature.s, 1);
   display.setTextSize(1);
-  display.print("F ");
-  
+  display.print("F");
+
+  //Measure the relative humidity string
   display.setTextSize(supTextSize);
-  display.print(percentRH.s, 1);
+  
+  String p = String(percentRH.s, 1);
+  int16_t x, y;
+  uint16_t w, h;
+  display.getTextBounds(p, 0, 0, &x, &y, &w, &h);
+
+  //draw into bottom right of display
+  int16_t x1 = SSD1306_LCDWIDTH - w;
+  int16_t y1 = SSD1306_LCDHEIGHT - h;
+
+  //Mesaure the unit indicator
+  display.setTextSize(1);
+  display.getTextBounds("%", 0, 0, &x, &y, &w, &h);
+  x1 -= w;  //update x position left
+
+  //draw into the bottom right of display
+  display.setCursor(x1, y1);
+
+  display.setTextSize(2);
+  display.print(p);
+  
   display.setTextSize(1);
   display.println("%");
 
@@ -220,10 +242,16 @@ void UpdateDisplay()
     display.print(altitude.s, 2);
     display.println(" ft"); 
   }
+
+  display.drawRoundRect(0, 0, SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT, /* radius*/ 4, /*color*/ 1),
   
   display.display();
-  
 }
+
+//Create method to write text to:
+//tl tc tr
+//ml mc mr
+//bl bc br
 
 void printNumber(int number)
 {
