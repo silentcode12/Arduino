@@ -9,12 +9,6 @@ typedef struct
   float s;      //initialization of EMA S
 } EMA;
 
-typedef struct
-{
-  float x;
-  float y;
-} VF;
-
 typedef enum
 {
   left,
@@ -207,55 +201,10 @@ void UpdateDisplay()
   float x2 = cos(angle);
   float y2 = sin(angle);
 
-  float x4 = 32.0 * tan(PI/2 - angle);
-  Serial.print(x2);
-  Serial.print(" ");
-  if (x4 <0)
-  x4 = 0;
-
-  if (x4 >127)
-  x4 = 127;
-  Serial.println(x4);
-
- // display.drawPixel(x4, 2, 1);
-
-  float xx = x2 * SSD1306_LCDWIDTH / 2; //scale to max value -64 to 64
-  xx +=  SSD1306_LCDWIDTH / 2; //center in middle of screen
-
-  float yy = y2 * SSD1306_LCDHEIGHT / 2; //scale to max value -32 to 32
-  yy +=  SSD1306_LCDHEIGHT / 2; //center in middle of screen
-
-  VF v {64, 32};
-  VF vv {x2, y2};
-  VF i = PointOnBounds(v, vv);
-
-
-//  display.drawPixel(i.x + 63, i.y + 31, 1);
-/*  display.drawPixel(0, 0, 1);
-  display.drawPixel(127, 0, 1);
-  display.drawPixel(0, 63, 1);
-  display.drawPixel(127, 63, 1);*/
-
- // float x3 = cos(angle + radSecond);
- // float y3 = sin(angle + radSecond);
-
-  //float xx = x2 * 64 + SSD1306_LCDWIDTH / 2;
-  //display.drawPixel(xx, 0, 1);
-  //display.drawPixel(xx, 1, 1);
-
- // float yy = y2 * 32 + SSD1306_LCDHEIGHT / 2;
-  //display.drawPixel(0, yy, 1);
-  //display.drawPixel(1, yy, 1);
-
-  //display.drawPixel(xx, yy, 1);
-
   display.drawLine(SSD1306_LCDWIDTH / 2, SSD1306_LCDHEIGHT/2, (x2*64) + SSD1306_LCDWIDTH / 2, (y2*64) + SSD1306_LCDHEIGHT/2, 1),
- // drawPerimeterLine(xx, yy, xxx, yyy);
 
   display.display();
 }
-
-
 
 void drawText(const String text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript)
 {
@@ -282,50 +231,4 @@ void drawText(const String text, int textSize, int16_t &x, int16_t &y, ALIGN ali
 
   display.setCursor(x, y);
   display.print(text);
-}
-
- VF PointOnBounds(VF e, VF v)
- {
-
-  float y = e.x * v.y / v.x;
-  if (abs(y) < e.y)
-  {
-    VF a = {e.x, y};
-  
-    return a;
-  }
-
-  VF b = 
-  {
-     e.y * v.x / v.y, 
-     e.y
-  };
-          
-  return b;
- }
-
-void drawPerimeterLine(int x1, int y1, int x2, int y2)
-{
-  if (x2 < x1)
-  {
-    int a = x1;
-    x1 = x2;
-    x2 = a;
-  }
-
-  if (y2 < y1)
-  {
-    int t = y1;
-    y1 = y2;
-    y2 = t;
-  }
-
-x1 = x2 = 0;
-  for(int x = x1; x <= x2; x++)
-  {
-    for(int y = y1; y <= y2; y++)
-    {
-      display.drawPixel(x, y, 1);
-    }
-  }
 }
