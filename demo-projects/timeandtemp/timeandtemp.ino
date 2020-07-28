@@ -9,6 +9,19 @@ typedef struct
   float s;      //initialization of EMA S
 } EMA;
 
+typedef struct
+{
+  float x;
+  float y;
+} VF;
+
+typedef enum
+{
+  left,
+  center,
+  right
+} ALIGN;
+
 //Constants
 #define OLED_RESET 4
 #define BUTTON_PIN 2
@@ -134,129 +147,185 @@ void loop ()
   delay(250);
 }
 
+float angle = 0;
+
 void UpdateDisplay()
 {
   display.clearDisplay();
   display.setTextColor(WHITE);
   display.setCursor(0,0);
+  display.setTextWrap(false);
 
-  if (textSize == 4)
-  {
-    display.setTextSize(1);
-    display.println();
-    display.println();
-  }
-  else if (textSize == 3)
-  {
-    display.setTextSize(1);
-    display.println();
-  }
-   else if (textSize == 2)
-  {
-    display.setTextSize(1);
-    display.println();
-  }
-  else if (textSize == 1)
-  {
-    display.setTextSize(1);
-    display.println();
-    display.println();
-    display.println();
-  }
-  
-  display.setTextSize(textSize);
-  display.print(" ");
-  printNumber(dateTime.hour());
-  display.print(':');
-  printNumber(dateTime.minute());
-  if (textSize == 1)
-    display.print(':');
-  
-  if (textSize < 4){
-  display.setTextSize(1);
-  printNumber(dateTime.second());
-  }
-  
-  for(int x = textSize; x > 0; x--)
-  {
-    display.println();
-  }
+  // Display time
+  char data[6];
+  sprintf(data, "%02d:%02d", dateTime.hour(), dateTime.minute());
+  String a(data);
+  int16_t x = 65;
+  int16_t y = 12;
+  drawText(a, 3, x, y, center, false);
 
-  display.print("   ");
-  display.print(daysOfTheWeek[dateTime.dayOfTheWeek()]);
+  //Display temp
+  char data3[10];
+  dtostrf(temperature.s, 3, 1, data3);
+  sprintf(data3, "%sF", data3);
+  x = 0;
+  y = 63 - 16;
+  drawText(data3, 2, x, y, left, false);
 
-  display.print(" ");
-  display.print(dateTime.year(), DEC);
-  display.print('/');
-  printNumber(dateTime.month());
-  display.print('/');
-  printNumber(dateTime.day());
-  display.println();
+  //display % humidity
+  x = SSD1306_LCDWIDTH - 1;
+  y = SSD1306_LCDHEIGHT -1;
 
-  int supTextSize = 2;
+  drawText("%", 1, x, y, right, true);
+  y = SSD1306_LCDHEIGHT -1;
+  drawText(String(percentRH.s, 1), 2, x, y, right, false);
 
-  if (textSize < 3)
-    supTextSize = 1;
+  //display date
+  char data2[17];
+  sprintf(data2, "%s, %d/%02d/%02d", daysOfTheWeek[dateTime.dayOfTheWeek()], dateTime.year(), dateTime.month() ,dateTime.day());
+ 
+  x = 64;
+  y = 32;
+  drawText(data2, 1, x, y, center, false);
 
-  display.setTextSize(1);
-  display.println();
-  display.setTextSize(supTextSize);
+  //Things to experiement with...
+  //setTextWrap
+  //fillScreen
+  //drawLine
+  //drawRect
+  //drawPixel
+  //Adafruit_GFX_Button
 
-  display.print(temperature.s, 1);
-  display.setTextSize(1);
-  display.print("F");
+  //1 is default 6x8, 2 is 12x16, 3 is 18x24, etc
 
-  //Measure the relative humidity string
-  display.setTextSize(supTextSize);
-  
-  String p = String(percentRH.s, 1);
-  int16_t x, y;
-  uint16_t w, h;
-  display.getTextBounds(p, 0, 0, &x, &y, &w, &h);
+ // display.drawRoundRect(0, 0, SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT, /* radius*/ 4, /*color*/ 1);
 
-  //draw into bottom right of display
-  int16_t x1 = SSD1306_LCDWIDTH - w;
-  int16_t y1 = SSD1306_LCDHEIGHT - h;
+  const float radSecond = 0.10472;
 
-  //Mesaure the unit indicator
-  display.setTextSize(1);
-  display.getTextBounds("%", 0, 0, &x, &y, &w, &h);
-  x1 -= w;  //update x position left
+  angle = (radSecond * dateTime.second()) - (15 * radSecond);
 
-  //draw into the bottom right of display
-  display.setCursor(x1, y1);
+  float x2 = cos(angle);
+  float y2 = sin(angle);
 
-  display.setTextSize(2);
-  display.print(p);
-  
-  display.setTextSize(1);
-  display.println("%");
+  float x4 = 32.0 * tan(PI/2 - angle);
+  Serial.print(x2);
+  Serial.print(" ");
+  if (x4 <0)
+  x4 = 0;
 
-  if (textSize < 3)
-  {
-    display.setTextSize(supTextSize);
-    
-    display.print(altitude.s/1000.0, 2);
-    display.print(" KPa, ");
-  
-    display.print(altitude.s, 2);
-    display.println(" ft"); 
-  }
+  if (x4 >127)
+  x4 = 127;
+  Serial.println(x4);
 
-  display.drawRoundRect(0, 0, SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT, /* radius*/ 4, /*color*/ 1),
-  
+ // display.drawPixel(x4, 2, 1);
+
+  float xx = x2 * SSD1306_LCDWIDTH / 2; //scale to max value -64 to 64
+  xx +=  SSD1306_LCDWIDTH / 2; //center in middle of screen
+
+  float yy = y2 * SSD1306_LCDHEIGHT / 2; //scale to max value -32 to 32
+  yy +=  SSD1306_LCDHEIGHT / 2; //center in middle of screen
+
+  VF v {64, 32};
+  VF vv {x2, y2};
+  VF i = PointOnBounds(v, vv);
+
+
+//  display.drawPixel(i.x + 63, i.y + 31, 1);
+/*  display.drawPixel(0, 0, 1);
+  display.drawPixel(127, 0, 1);
+  display.drawPixel(0, 63, 1);
+  display.drawPixel(127, 63, 1);*/
+
+ // float x3 = cos(angle + radSecond);
+ // float y3 = sin(angle + radSecond);
+
+  //float xx = x2 * 64 + SSD1306_LCDWIDTH / 2;
+  //display.drawPixel(xx, 0, 1);
+  //display.drawPixel(xx, 1, 1);
+
+ // float yy = y2 * 32 + SSD1306_LCDHEIGHT / 2;
+  //display.drawPixel(0, yy, 1);
+  //display.drawPixel(1, yy, 1);
+
+  //display.drawPixel(xx, yy, 1);
+
+  display.drawLine(SSD1306_LCDWIDTH / 2, SSD1306_LCDHEIGHT/2, (x2*64) + SSD1306_LCDWIDTH / 2, (y2*64) + SSD1306_LCDHEIGHT/2, 1),
+ // drawPerimeterLine(xx, yy, xxx, yyy);
+
   display.display();
 }
 
-//Create method to write text to:
-//tl tc tr
-//ml mc mr
-//bl bc br
 
-void printNumber(int number)
+
+void drawText(const String text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript)
 {
-  if (number < 10) 
-    display.print("0");
+  int16_t x1 = 0, y1 = 0;
+  uint16_t w = 0, h = 0;
+  display.setTextSize(textSize);
+  display.getTextBounds(text, 0, 0, &x1, &y1, &w, &h);
+  
+  switch(align)
+  {
+    case left:
     
-  display.print(number, DEC);
+    break;
+    case center:
+      x -= w / 2;
+      y -= h / 2;
+    break;
+    
+    case right:
+      x -= w;
+      y -= superscript ? 2 * h : h;
+    break;
+  }
+
+  display.setCursor(x, y);
+  display.print(text);
+}
+
+ VF PointOnBounds(VF e, VF v)
+ {
+
+  float y = e.x * v.y / v.x;
+  if (abs(y) < e.y)
+  {
+    VF a = {e.x, y};
+  
+    return a;
+  }
+
+  VF b = 
+  {
+     e.y * v.x / v.y, 
+     e.y
+  };
+          
+  return b;
+ }
+
+void drawPerimeterLine(int x1, int y1, int x2, int y2)
+{
+  if (x2 < x1)
+  {
+    int a = x1;
+    x1 = x2;
+    x2 = a;
+  }
+
+  if (y2 < y1)
+  {
+    int t = y1;
+    y1 = y2;
+    y2 = t;
+  }
+
+x1 = x2 = 0;
+  for(int x = x1; x <= x2; x++)
+  {
+    for(int y = y1; y <= y2; y++)
+    {
+      display.drawPixel(x, y, 1);
+    }
+  }
 }
