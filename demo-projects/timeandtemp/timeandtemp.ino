@@ -26,7 +26,6 @@ typedef enum
 const char daysOfTheWeek[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
 //Variables
-volatile int textSize = 3;
 volatile DateTime dateTime;
 volatile long lastFall = 0;
 
@@ -40,6 +39,8 @@ EMA percentRH {0.1, 0};
 EMA temperature {0.9, 0};
 EMA altitude {0.1, 0};
 EMA pressure {0.1, 0};
+
+EMA button {0.5, 0};
 
 //Exponential Moving Average
 //https://www.norwegiancreations.com/2015/10/tutorial-potentiometers-with-arduino-and-filtering/
@@ -129,19 +130,63 @@ void pin2ISR()
       return;  //We were falling but now we're high
 
   Serial.println("down");
-
-  if (textSize + 1 > 4)
-    textSize = 1;
-  else
-    textSize++;
 }
 
+int buttonV = 1;
+int buttonUp = true;
+float last = 0;
+bool longPress = false;
 void loop () 
 {
-  delay(250);
+  int value =  digitalRead(BUTTON_PIN);
+  UpdateEma(button, value);
+
+  if ((int)button.s != 0 && (int)button.s != 1)
+  {
+    //button in transition
+    return;
+  }
+
+  if (buttonV != (int)button.s)
+  {
+    if (button.s == 1)
+    {
+      ButtonUp(longPress);
+      longPress = false;
+      buttonUp = true;
+    }
+    else
+    {
+      buttonUp = false;
+      last = millis();
+    }
+
+    buttonV = (int)button.s;
+  }
+
+  if (buttonUp == false)
+  {
+      float now = millis();
+      if (now - last > 2000 && !longPress)
+      {
+        longPress = true; 
+        LongPressBegin();
+      }
+  }
 }
 
 float angle = 0;
+
+void ButtonUp(bool longPress)
+{
+  Serial.print("click up - ");
+  Serial.println(longPress ? "long" : "short");  
+}
+
+void LongPressBegin()
+{
+   Serial.println("long press start");
+}
 
 void UpdateDisplay()
 {
@@ -198,12 +243,17 @@ void UpdateDisplay()
 
   angle = (radSecond * dateTime.second()) - (15 * radSecond);
 
+  //Serial.println(angle * 180/PI);
+   
   float x2 = cos(angle);
   float y2 = sin(angle);
 
-  display.drawLine(SSD1306_LCDWIDTH / 2, SSD1306_LCDHEIGHT/2, (x2*64) + SSD1306_LCDWIDTH / 2, (y2*64) + SSD1306_LCDHEIGHT/2, 1),
-
+  display.drawLine(SSD1306_LCDWIDTH / 2, SSD1306_LCDHEIGHT/2, (x2*64) + SSD1306_LCDWIDTH / 2, (y2*64) + SSD1306_LCDHEIGHT/2, 1);
+  
   display.display();
+
+  //Serial.println(angle);
+  //Serial.println();
 }
 
 void drawText(const String text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript)
