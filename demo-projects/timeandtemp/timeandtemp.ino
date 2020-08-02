@@ -1,6 +1,6 @@
 #include <Adafruit_SSD1306.h>
 #include <RTClib.h>
-#include <SparkFunBME280.h>
+//#include <SparkFunBME280.h>
 
 //Data type definitions
 typedef struct 
@@ -15,6 +15,18 @@ typedef enum
   center,
   right
 } ALIGN;
+
+typedef struct
+{
+  void (*buttonUp)(bool);
+  void (*beginLongPress)();
+  void (*render)();
+}SCREEN;
+
+SCREEN full = {&ShowDate, &EnterSetTime, &RenderFull};
+SCREEN date = {&ShowTime, &EnderSetDate, &RenderDate};
+SCREEN editTime = {&EditTimeField, &SaveTimeField, &RenderEditTime};
+volatile SCREEN currentScreen;
 
 //Constants
 #define OLED_RESET 4
@@ -32,7 +44,7 @@ volatile long lastFall = 0;
 //I2C devices
 Adafruit_SSD1306 display(OLED_RESET);
 RTC_DS3231 rtc;
-BME280 bme280;
+//BME280 bme280;
 
 //BME280 readings
 EMA percentRH {0.1, 0};
@@ -69,7 +81,7 @@ void setup ()
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 
   //Configure the BME2800
-  bme280.settings.commInterface = I2C_MODE;
+/*  bme280.settings.commInterface = I2C_MODE;
   bme280.settings.I2CAddress = 0x76;
   bme280.settings.runMode = 3; //Normal mode
   bme280.settings.tStandby = 0;
@@ -78,7 +90,7 @@ void setup ()
   bme280.settings.pressOverSample = 1;
   bme280.settings.humidOverSample = 1;
   bme280.begin();
-
+*/
   //Start the serial comm
   Serial.begin(9600);
 
@@ -88,30 +100,32 @@ void setup ()
   pinMode(BUTTON_PIN, INPUT_PULLUP);  //Button pin
 
   //Prime the first value to avoid initial homing of average from zero.
-  percentRH.s = bme280.readFloatHumidity();
+/*  percentRH.s = bme280.readFloatHumidity();
   temperature.s = bme280.readTempF() + TEMP_CORRECTION;
   altitude.s = bme280.readFloatAltitudeFeet();
   pressure.s = bme280.readFloatPressure();
-
+*/
   //Setup interrupts
   attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), pin2ISR, FALLING);
   attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
+
+  currentScreen = full;
 }
 
 void pin3ISR()
 {
   interrupts(); //Enable interrupts so that I2C communication can work, equivalent to sei();
-
-  dateTime = rtc.now();
-  UpdateEma(temperature, bme280.readTempF() + TEMP_CORRECTION);
+dateTime = rtc.now();
+/*  UpdateEma(temperature, bme280.readTempF() + TEMP_CORRECTION);
   UpdateEma(percentRH, bme280.readFloatHumidity());
   UpdateEma(pressure, bme280.readFloatPressure());
-  UpdateEma(altitude, bme280.readFloatAltitudeFeet());
-  UpdateDisplay();
+  UpdateEma(altitude, bme280.readFloatAltitudeFeet());*/
+  currentScreen.render();
+  
 }
 
 void pin2ISR()
-{
+{/*
   volatile int currentValue = digitalRead(BUTTON_PIN);
 
   if (currentValue == HIGH)
@@ -129,7 +143,7 @@ void pin2ISR()
   if (currentValue == HIGH)
       return;  //We were falling but now we're high
 
-  Serial.println("down");
+  Serial.println("down");*/
 }
 
 int buttonV = 1;
@@ -173,6 +187,10 @@ void loop ()
         LongPressBegin();
       }
   }
+
+
+
+ // delay(100);
 }
 
 float angle = 0;
@@ -181,15 +199,84 @@ void ButtonUp(bool longPress)
 {
   Serial.print("click up - ");
   Serial.println(longPress ? "long" : "short");  
+  currentScreen.buttonUp(longPress);
 }
 
 void LongPressBegin()
 {
    Serial.println("long press start");
+   currentScreen.beginLongPress();
 }
 
-void UpdateDisplay()
+//button up
+void EditTimeField(bool isLongPress)
 {
+}
+
+void SaveTimeField()
+{
+  currentScreen=full;
+}
+
+void RenderEditTime()
+{
+  Serial.println("render edit time");
+  display.clearDisplay();
+  int x = 64;
+  int y = 32;
+  drawText("edit time", 2, x, y, center, false);
+  display.display();
+}
+
+void ShowDate(bool isLongPress)
+{
+  if (!isLongPress)
+  {
+    currentScreen = date;
+  }
+}
+
+void EnterSetTime()
+{
+  currentScreen = editTime;
+}
+
+void ShowTime(bool isLongPress)
+{
+  if (!isLongPress)
+  {
+    currentScreen = full;
+  }
+}
+
+void EnderSetDate()
+{
+  //currentScreen = 
+}
+
+void RenderDate()
+{
+  Serial.println("render date");
+  display.clearDisplay();
+  //display.setTextColor(WHITE);
+  //display.setCursor(0,0);
+
+   //display date
+  char data2[17];
+  sprintf(data2, "%s\n%02d/%02d\n%d", daysOfTheWeek[dateTime.dayOfTheWeek()], dateTime.month() ,dateTime.day(), dateTime.year());
+ Serial.println(data2);
+  int x = 64;
+  int y = 32;
+  drawText(data2, 2, x, y, center, false);
+  Serial.print((int)x);
+  Serial.print((int)y);
+
+  display.display();
+}
+
+void RenderFull()
+{
+  Serial.println("render full");
   display.clearDisplay();
   display.setTextColor(WHITE);
   display.setCursor(0,0);
