@@ -1,5 +1,5 @@
 #include <Adafruit_SSD1306.h>
-#include <RTClib.h>
+//#include <RTClib.h>
 //#include <SparkFunBME280.h>
 
 //Data type definitions
@@ -26,6 +26,8 @@ typedef struct
 SCREEN full = {&ShowDate, &EnterSetTime, &RenderFull};
 SCREEN date = {&ShowTime, &EnderSetDate, &RenderDate};
 SCREEN editTime = {&EditTimeField, &SaveTimeField, &RenderEditTime};
+SCREEN editDate = {&EditDateField, &SaveDateField, &RenderEditDate};
+
 volatile SCREEN currentScreen;
 
 //Constants
@@ -35,15 +37,15 @@ volatile SCREEN currentScreen;
 #define RTC_32K_PIN 5
 #define TEMP_CORRECTION -10.0
 
-const char daysOfTheWeek[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+//const char daysOfTheWeek[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
 //Variables
-volatile DateTime dateTime;
+//volatile DateTime dateTime;
 volatile long lastFall = 0;
 
 //I2C devices
 Adafruit_SSD1306 display(OLED_RESET);
-RTC_DS3231 rtc;
+//RTC_DS3231 rtc;
 //BME280 bme280;
 
 //BME280 readings
@@ -64,18 +66,18 @@ void UpdateEma(EMA& ema, float sample)
 void setup () 
 {
   //Configure the RTC
-  if (! rtc.begin()) 
+  /*if (! rtc.begin()) 
   {
     while (1);
-  }
+  }*/
 
   //No way to set time other than to uncomment this and upload to device.  Then uncomment and re-upload.
   //if (rtc.lostPower()) {
    // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   //}
 
-  rtc.writeSqwPinMode(Ds3231SqwPinMode::DS3231_SquareWave1Hz);
-  dateTime = rtc.now();
+  /*rtc.writeSqwPinMode(Ds3231SqwPinMode::DS3231_SquareWave1Hz);
+  dateTime = rtc.now();*/
 
   //Initialize the display
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
@@ -92,7 +94,7 @@ void setup ()
   bme280.begin();
 */
   //Start the serial comm
-  Serial.begin(9600);
+//  Serial.begin(9600);
 
   //Setup input pins
   pinMode(RTC_SQW_PIN, INPUT);         //Square wave from rtc
@@ -109,19 +111,18 @@ void setup ()
   attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), pin2ISR, FALLING);
   attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
 
-  currentScreen = full;
+  currentScreen = date;
 }
 
 void pin3ISR()
 {
-  interrupts(); //Enable interrupts so that I2C communication can work, equivalent to sei();
-dateTime = rtc.now();
+//  interrupts(); //Enable interrupts so that I2C communication can work, equivalent to sei();
+//dateTime = rtc.now();
 /*  UpdateEma(temperature, bme280.readTempF() + TEMP_CORRECTION);
   UpdateEma(percentRH, bme280.readFloatHumidity());
   UpdateEma(pressure, bme280.readFloatPressure());
   UpdateEma(altitude, bme280.readFloatAltitudeFeet());*/
-  currentScreen.render();
-  
+//  currentScreen.render();
 }
 
 void pin2ISR()
@@ -150,8 +151,17 @@ int buttonV = 1;
 int buttonUp = true;
 float last = 0;
 bool longPress = false;
+unsigned long lastRender = 0;
 void loop () 
 {
+  unsigned long now = millis();
+  if (now - lastRender > 250)
+  {
+    lastRender = now;
+     currentScreen.render();
+  }
+   
+
   int value =  digitalRead(BUTTON_PIN);
   UpdateEma(button, value);
 
@@ -191,27 +201,47 @@ void loop ()
 
 
  // delay(100);
+
 }
 
 float angle = 0;
 
 void ButtonUp(bool longPress)
 {
-  Serial.print("click up - ");
-  Serial.println(longPress ? "long" : "short");  
+  //Serial.print("click up - ");
+ // Serial.println(longPress ? "long" : "short");  
   currentScreen.buttonUp(longPress);
 }
 
 void LongPressBegin()
 {
-   Serial.println("long press start");
+  // Serial.println("long press start");
    currentScreen.beginLongPress();
 }
 
 //button up
+void EditDateField(bool isLongPress)
+{
+}
+
+void SaveDateField()
+{
+  currentScreen=date;
+}
+
+void RenderEditDate()
+{
+  display.clearDisplay();
+  int x, y;
+  x = y = 10;
+  drawText("Render edit date", 1, x, y, left, false);
+  display.display();
+}
+
 void EditTimeField(bool isLongPress)
 {
 }
+
 
 void SaveTimeField()
 {
@@ -220,11 +250,16 @@ void SaveTimeField()
 
 void RenderEditTime()
 {
+  display.clearDisplay();
+  int x, y;
+  x = y = 10;
+  drawText("Render edit time", 1, x, y, left, false);
+  /*
   Serial.println("render edit time");
   display.clearDisplay();
   int x = 64;
   int y = 32;
-  drawText("edit time", 2, x, y, center, false);
+  drawText("edit time", 2, x, y, center, false);*/
   display.display();
 }
 
@@ -251,31 +286,39 @@ void ShowTime(bool isLongPress)
 
 void EnderSetDate()
 {
-  //currentScreen = 
+  currentScreen = editDate; 
 }
 
 void RenderDate()
 {
-  Serial.println("render date");
+  //Serial.println("render date");
   display.clearDisplay();
+  int x, y;
+  x = y = 10;
+  drawText("Render date", 1, x, y, left, false);
   //display.setTextColor(WHITE);
   //display.setCursor(0,0);
 
    //display date
-  char data2[17];
+  /*char data2[17];
   sprintf(data2, "%s\n%02d/%02d\n%d", daysOfTheWeek[dateTime.dayOfTheWeek()], dateTime.month() ,dateTime.day(), dateTime.year());
- Serial.println(data2);
+  Serial.println(data2);
   int x = 64;
   int y = 32;
   drawText(data2, 2, x, y, center, false);
   Serial.print((int)x);
   Serial.print((int)y);
-
+*/
   display.display();
 }
 
 void RenderFull()
 {
+  display.clearDisplay();
+  int x, y;
+  x = y = 10;
+  drawText("Render time", 1, x, y,left,false);
+  /*
   Serial.println("render full");
   display.clearDisplay();
   display.setTextColor(WHITE);
@@ -313,7 +356,7 @@ void RenderFull()
   x = 64;
   y = 32;
   drawText(data2, 1, x, y, center, false);
-
+*/
   //Things to experiement with...
   //setTextWrap
   //fillScreen
@@ -325,7 +368,7 @@ void RenderFull()
   //1 is default 6x8, 2 is 12x16, 3 is 18x24, etc
 
  // display.drawRoundRect(0, 0, SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT, /* radius*/ 4, /*color*/ 1);
-
+/*
   const float radSecond = 0.10472;
 
   angle = (radSecond * dateTime.second()) - (15 * radSecond);
@@ -337,16 +380,21 @@ void RenderFull()
 
   display.drawLine(SSD1306_LCDWIDTH / 2, SSD1306_LCDHEIGHT/2, (x2*64) + SSD1306_LCDWIDTH / 2, (y2*64) + SSD1306_LCDHEIGHT/2, 1);
   
-  display.display();
-
+  
   //Serial.println(angle);
   //Serial.println();
+  */
+
+  display.display();
 }
 
 void drawText(const String text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript)
 {
   int16_t x1 = 0, y1 = 0;
   uint16_t w = 0, h = 0;
+  display.setCursor(0,0);
+  display.setTextWrap(false);
+  display.setTextColor(WHITE);
   display.setTextSize(textSize);
   display.getTextBounds(text, 0, 0, &x1, &y1, &w, &h);
   
