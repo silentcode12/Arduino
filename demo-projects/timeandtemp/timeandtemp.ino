@@ -238,14 +238,45 @@ void RenderEditDate()
   display.display();
 }
 
+int time[] = {0, 0, 0};
+int timeIndex = 0;
 void EditTimeField(bool isLongPress)
 {
+  if (!isLongPress)
+  {
+    switch(timeIndex)
+    {
+      case 0: 
+        if (time[0] == 12)
+          time[0] = 0;
+        break;
+      case 1: 
+        if(time[1] == 59)
+          time[1] = -1;
+        break;
+      case 2:
+        time[2] = 0; //Note:  reset seconds to zero for synchronization, will count up
+        return;
+    }
+    
+    time[timeIndex]++;
+  }
 }
-
 
 void SaveTimeField()
 {
-  currentScreen=full;
+  timeIndex++;
+  switch (timeIndex)
+  {
+    case 0: break;
+    case 1: break;
+    case 2: break;
+    default: 
+    {
+      currentScreen=full;
+      break;
+    }
+  }
 }
 
 void RenderEditTime()
@@ -254,6 +285,21 @@ void RenderEditTime()
   int x, y;
   x = y = 10;
   drawText("Render edit time", 1, x, y, left, false);
+  y += 20;
+  char data[10];
+  sprintf(data, "%02d:%02d:%02d", time[0], time[1], time[2]);
+  drawText(data, 2, x, y, left, false);
+
+  int w, h;
+  display.getTextBounds("00", 0, 0, &x, &y, &w, &h);
+  x = 10;
+  y = 45;
+  x = x 
+  + (timeIndex * w) //numeric digits width
+  + (timeIndex * w / 2);  //divider width
+  int x1 = x + w;  // underline the two digits
+  display.drawLine(x, y, x1, y, 1);
+  
   /*
   Serial.println("render edit time");
   display.clearDisplay();
@@ -273,6 +319,7 @@ void ShowDate(bool isLongPress)
 
 void EnterSetTime()
 {
+  timeIndex = 0;
   currentScreen = editTime;
 }
 
@@ -317,7 +364,11 @@ void RenderFull()
   display.clearDisplay();
   int x, y;
   x = y = 10;
-  drawText("Render time", 1, x, y,left,false);
+  drawText("Render time", 1, x, y,left,false); y += 20;
+  char data[10];
+  sprintf(data, "%02d:%02d:%02d", time[0], time[1], time[2]);
+  drawText(data, 2, x, y, left, false);
+  
   /*
   Serial.println("render full");
   display.clearDisplay();
