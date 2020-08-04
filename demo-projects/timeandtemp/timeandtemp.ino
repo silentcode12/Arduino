@@ -191,31 +191,23 @@ void loop ()
   if (buttonUp == false)
   {
       float now = millis();
-      if (now - last > 2000 && !longPress)
+      if (now - last > 1000 && !longPress)
       {
         longPress = true; 
         LongPressBegin();
       }
   }
-
-
-
- // delay(100);
-
 }
 
 float angle = 0;
 
 void ButtonUp(bool longPress)
 {
-  //Serial.print("click up - ");
- // Serial.println(longPress ? "long" : "short");  
   currentScreen.buttonUp(longPress);
 }
 
 void LongPressBegin()
 {
-  // Serial.println("long press start");
    currentScreen.beginLongPress();
 }
 
@@ -292,20 +284,18 @@ void RenderEditTime()
 
   int w, h;
   display.getTextBounds("00", 0, 0, &x, &y, &w, &h);
-  x = 10;
   y = 45;
-  x = x 
-  + (timeIndex * w) //numeric digits width
-  + (timeIndex * w / 2);  //divider width
-  int x1 = x + w;  // underline the two digits
-  display.drawLine(x, y, x1, y, 1);
+
+  for(y=45; y <48; y ++)
+  {
+    x = 10;
+    x = x 
+    + (timeIndex * w) //numeric digits width
+    + (timeIndex * w / 2);  //divider width
+    int x1 = x + w;  // underline the two digits
+    display.drawLine(x, y, x1, y, 1);
+  }
   
-  /*
-  Serial.println("render edit time");
-  display.clearDisplay();
-  int x = 64;
-  int y = 32;
-  drawText("edit time", 2, x, y, center, false);*/
   display.display();
 }
 
