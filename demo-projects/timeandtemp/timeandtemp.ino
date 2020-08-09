@@ -232,14 +232,19 @@ void RenderEditDate()
 
 int time[] = {0, 0, 0};
 int timeIndex = 0;
+bool is24hr = true;  //todo:  read from EPROM
+
 void EditTimeField(bool isLongPress)
 {
   if (!isLongPress)
   {
     switch(timeIndex)
     {
+      case -1:
+        is24hr = !is24hr;
+        return;
       case 0: 
-        if (time[0] == 12)
+        if ((is24hr && time[0] == 23) || (!is24hr && time[0] == 12))
           time[0] = 0;
         break;
       case 1: 
@@ -260,6 +265,7 @@ void SaveTimeField()
   timeIndex++;
   switch (timeIndex)
   {
+    case -1: break;
     case 0: break;
     case 1: break;
     case 2: break;
@@ -278,22 +284,32 @@ void RenderEditTime()
   x = y = 10;
   drawText("Render edit time", 1, x, y, left, false);
   y += 20;
-  char data[10];
-  sprintf(data, "%02d:%02d:%02d", time[0], time[1], time[2]);
-  drawText(data, 2, x, y, left, false);
 
-  int w, h;
-  display.getTextBounds("00", 0, 0, &x, &y, &w, &h);
-  y = 45;
-
-  for(y=45; y <48; y ++)
+  if (timeIndex == -1)
   {
-    x = 10;
-    x = x 
-    + (timeIndex * w) //numeric digits width
-    + (timeIndex * w / 2);  //divider width
-    int x1 = x + w;  // underline the two digits
-    display.drawLine(x, y, x1, y, 1);
+    x = 64;
+    y = 32;
+    drawText(is24hr ? "24hr" : "12hr", 2, x, y, center, false);
+  }
+  else
+  {
+    char data[10];
+    sprintf(data, "%02d:%02d:%02d", time[0], time[1], time[2]);
+    drawText(data, 2, x, y, left, false);
+  
+    int w, h;
+    display.getTextBounds("00", 0, 0, &x, &y, &w, &h);
+    y = 45;
+  
+    for(y=45; y <48; y ++)
+    {
+      x = 10;
+      x = x 
+      + (timeIndex * w) //numeric digits width
+      + (timeIndex * w / 2);  //divider width
+      int x1 = x + w;  // underline the two digits
+      display.drawLine(x, y, x1, y, 1);
+    }
   }
   
   display.display();
@@ -309,7 +325,7 @@ void ShowDate(bool isLongPress)
 
 void EnterSetTime()
 {
-  timeIndex = 0;
+  timeIndex = -1;
   currentScreen = editTime;
 }
 
