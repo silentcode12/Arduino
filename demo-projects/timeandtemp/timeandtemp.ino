@@ -1,5 +1,5 @@
 #include <Adafruit_SSD1306.h>
-//#include <RTClib.h>
+#include <RTClib.h>
 //#include <SparkFunBME280.h>
 
 //Data type definitions
@@ -40,12 +40,12 @@ volatile SCREEN currentScreen;
 //const char daysOfTheWeek[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
 //Variables
-//volatile DateTime dateTime;
-volatile long lastFall = 0;
+volatile DateTime dateTime;
+//volatile long lastFall = 0;
 
 //I2C devices
 Adafruit_SSD1306 display(OLED_RESET);
-//RTC_DS3231 rtc;
+RTC_DS3231 rtc;
 //BME280 bme280;
 
 //BME280 readings
@@ -66,18 +66,18 @@ void UpdateEma(EMA& ema, float sample)
 void setup () 
 {
   //Configure the RTC
-  /*if (! rtc.begin()) 
+  if (! rtc.begin()) 
   {
     while (1);
-  }*/
+  }
 
   //No way to set time other than to uncomment this and upload to device.  Then uncomment and re-upload.
-  //if (rtc.lostPower()) {
-   // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  //}
+  /*if (rtc.lostPower()) {
+  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }*/
 
-  /*rtc.writeSqwPinMode(Ds3231SqwPinMode::DS3231_SquareWave1Hz);
-  dateTime = rtc.now();*/
+  rtc.writeSqwPinMode(Ds3231SqwPinMode::DS3231_SquareWave1Hz);
+  dateTime = rtc.now();
 
   //Initialize the display
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
@@ -108,7 +108,7 @@ void setup ()
   pressure.s = bme280.readFloatPressure();
 */
   //Setup interrupts
-  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), pin2ISR, FALLING);
+ // attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), pin2ISR, FALLING);
   attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
 
   currentScreen = date;
@@ -116,8 +116,8 @@ void setup ()
 
 void pin3ISR()
 {
-//  interrupts(); //Enable interrupts so that I2C communication can work, equivalent to sei();
-//dateTime = rtc.now();
+  interrupts(); //Enable interrupts so that I2C communication can work, equivalent to sei();
+  dateTime = rtc.now();
 /*  UpdateEma(temperature, bme280.readTempF() + TEMP_CORRECTION);
   UpdateEma(percentRH, bme280.readFloatHumidity());
   UpdateEma(pressure, bme280.readFloatPressure());
@@ -244,11 +244,11 @@ void EditTimeField(bool isLongPress)
         is24hr = !is24hr;
         return;
       case 0: 
-        if ((is24hr && time[0] == 23) || (!is24hr && time[0] == 12))
+        if (time[0] >= 23)
           time[0] = 0;
         break;
       case 1: 
-        if(time[1] == 59)
+        if(time[1] >= 59)
           time[1] = -1;
         break;
       case 2:
@@ -271,6 +271,8 @@ void SaveTimeField()
     case 2: break;
     default: 
     {
+      DateTime newDateTime(dateTime.year(), dateTime.month(), dateTime.day(), time[0], time[1], time[2]);
+      rtc.adjust(newDateTime);
       currentScreen=full;
       break;
     }
@@ -294,7 +296,11 @@ void RenderEditTime()
   else
   {
     char data[10];
-    sprintf(data, "%02d:%02d:%02d", time[0], time[1], time[2]);
+    if (is24hr)
+      sprintf(data, "%02d:%02d:%02d", time[0], time[1], time[2]);
+    else
+      sprintf(data, "%02d:%02d:%02d %s", time[0] > 12 ? time[0] - 12 : time[0], time[1], time[2], time[0] > 11 ? "P" : "A");
+      
     drawText(data, 2, x, y, left, false);
   
     int w, h;
@@ -326,6 +332,9 @@ void ShowDate(bool isLongPress)
 void EnterSetTime()
 {
   timeIndex = -1;
+  time[0] = dateTime.hour();
+  time[1] = dateTime.minute();
+  time[2] = dateTime.second();
   currentScreen = editTime;
 }
 
@@ -349,19 +358,14 @@ void RenderDate()
   int x, y;
   x = y = 10;
   drawText("Render date", 1, x, y, left, false);
-  //display.setTextColor(WHITE);
-  //display.setCursor(0,0);
 
    //display date
-  /*char data2[17];
-  sprintf(data2, "%s\n%02d/%02d\n%d", daysOfTheWeek[dateTime.dayOfTheWeek()], dateTime.month() ,dateTime.day(), dateTime.year());
-  Serial.println(data2);
-  int x = 64;
-  int y = 32;
-  drawText(data2, 2, x, y, center, false);
-  Serial.print((int)x);
-  Serial.print((int)y);
-*/
+  char data2[17];
+  sprintf(data2, "%s\n%02d/%02d\n%d", dateTime.dayOfTheWeek(), dateTime.month() ,dateTime.day(), dateTime.year());
+  x = 0;
+  y = 32;
+  drawText(data2, 1, x, y, left, false);
+
   display.display();
 }
 
@@ -371,8 +375,16 @@ void RenderFull()
   int x, y;
   x = y = 10;
   drawText("Render time", 1, x, y,left,false); y += 20;
-  char data[10];
-  sprintf(data, "%02d:%02d:%02d", time[0], time[1], time[2]);
+  char data[20];
+  int hour = dateTime.hour();
+  int minute = dateTime.minute();
+  int second = dateTime.second();
+  
+  if (is24hr)
+    sprintf(data, "%02d:%02d:%02d", hour, minute, second);
+  else
+    sprintf(data, "%02d:%02d:%02d %s", hour > 12 ? hour - 12 : hour, minute, second, hour > 12 ? "P" : "A");
+    
   drawText(data, 2, x, y, left, false);
   
   /*
