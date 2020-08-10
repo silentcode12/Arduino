@@ -40,6 +40,13 @@ volatile SCREEN currentScreen;
 const char daysOfTheWeek[7][4] PROGMEM = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};  //Stored in flash, read out using sprintf_P with %S
 
 //Variables
+byte timeIndex = 0;
+byte buttonV = 1;
+bool buttonUp = true;
+bool longPress = false;
+bool is24hr = true;  //todo:  read from EPROM
+byte time[] = {0, 0, 0};
+float last = 0;
 volatile DateTime dateTime;
 //volatile long lastFall = 0;
 
@@ -147,10 +154,6 @@ void pin2ISR()
   Serial.println("down");*/
 }
 
-int buttonV = 1;
-int buttonUp = true;
-float last = 0;
-bool longPress = false;
 //unsigned long lastRender = 0;
 void loop () 
 {
@@ -165,13 +168,13 @@ void loop ()
 
   UpdateEma(button, digitalRead(BUTTON_PIN));
 
-  if ((int)button.s != 0 && (int)button.s != 1)
+  if ((byte)button.s != 0 && (byte)button.s != 1)
   {
     //button in transition
     return;
   }
 
-  if (buttonV != (int)button.s)
+  if (buttonV != (byte)button.s)
   {
     if (button.s == 1)
     {
@@ -185,7 +188,7 @@ void loop ()
       last = millis();
     }
 
-    buttonV = (int)button.s;
+    buttonV = (bool)button.s;
   }
 
   if (buttonUp == false)
@@ -230,9 +233,7 @@ void RenderEditDate()
   display.display();
 }
 
-int time[] = {0, 0, 0};
-int timeIndex = 0;
-bool is24hr = true;  //todo:  read from EPROM
+
 
 void EditTimeField(bool isLongPress)
 {
@@ -304,7 +305,7 @@ void RenderEditTime()
     drawText(data, 2, x, y, left, false);
   
     int w, h;
-    display.getTextBounds("00", 0, 0, &x, &y, &w, &h);
+    display.getTextBounds(PSTR("00"), 0, 0, &x, &y, &w, &h);
     y = 45;
   
     for(y=45; y <48; y ++)
