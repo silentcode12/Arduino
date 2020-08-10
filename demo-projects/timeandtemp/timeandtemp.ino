@@ -37,7 +37,7 @@ volatile SCREEN currentScreen;
 #define RTC_32K_PIN 5
 #define TEMP_CORRECTION -10.0
 
-//const char daysOfTheWeek[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+const char daysOfTheWeek[7][4] PROGMEM = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
 //Variables
 volatile DateTime dateTime;
@@ -71,7 +71,7 @@ void setup ()
     while (1);
   }
 
-  //No way to set time other than to uncomment this and upload to device.  Then uncomment and re-upload.
+  //A way to set the current date time.
   /*if (rtc.lostPower()) {
   rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   }*/
@@ -297,9 +297,9 @@ void RenderEditTime()
   {
     char data[10];
     if (is24hr)
-      sprintf(data, "%02d:%02d:%02d", time[0], time[1], time[2]);
+      sprintf_P(data, PSTR("%02d:%02d:%02d"), time[0], time[1], time[2]);
     else
-      sprintf(data, "%02d:%02d:%02d %s", time[0] > 12 ? time[0] - 12 : time[0], time[1], time[2], time[0] > 11 ? "P" : "A");
+      sprintf_P(data, PSTR("%02d:%02d:%02d %s"), time[0] > 12 ? time[0] - 12 : time[0], time[1], time[2], time[0] > 11 ? "P" : "A");
       
     drawText(data, 2, x, y, left, false);
   
@@ -361,7 +361,7 @@ void RenderDate()
 
    //display date
   char data2[17];
-  sprintf(data2, "%s\n%02d/%02d\n%d", dateTime.dayOfTheWeek(), dateTime.month() ,dateTime.day(), dateTime.year());
+  sprintf_P(data2, PSTR("%S\n%02d/%02d\n%d"), daysOfTheWeek[dateTime.dayOfTheWeek()], dateTime.month() ,dateTime.day(), dateTime.year());
   x = 0;
   y = 32;
   drawText(data2, 1, x, y, left, false);
@@ -381,9 +381,9 @@ void RenderFull()
   int second = dateTime.second();
   
   if (is24hr)
-    sprintf(data, "%02d:%02d:%02d", hour, minute, second);
+    sprintf_P(data, PSTR("%02d:%02d:%02d"), hour, minute, second);
   else
-    sprintf(data, "%02d:%02d:%02d %s", hour > 12 ? hour - 12 : hour, minute, second, hour > 12 ? "P" : "A");
+    sprintf_P(data, PSTR("%02d:%02d:%02d %s"), hour > 12 ? hour - 12 : hour, minute, second, hour > 12 ? "P" : "A");
     
   drawText(data, 2, x, y, left, false);
   
