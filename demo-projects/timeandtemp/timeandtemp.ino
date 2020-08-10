@@ -37,7 +37,7 @@ volatile SCREEN currentScreen;
 #define RTC_32K_PIN 5
 #define TEMP_CORRECTION -10.0
 
-const char daysOfTheWeek[7][4] PROGMEM = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+const char daysOfTheWeek[7][4] PROGMEM = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};  //Stored in flash, read out using sprintf_P with %S
 
 //Variables
 volatile DateTime dateTime;
@@ -122,7 +122,7 @@ void pin3ISR()
   UpdateEma(percentRH, bme280.readFloatHumidity());
   UpdateEma(pressure, bme280.readFloatPressure());
   UpdateEma(altitude, bme280.readFloatAltitudeFeet());*/
-//  currentScreen.render();
+  currentScreen.render();
 }
 
 void pin2ISR()
@@ -151,19 +151,19 @@ int buttonV = 1;
 int buttonUp = true;
 float last = 0;
 bool longPress = false;
-unsigned long lastRender = 0;
+//unsigned long lastRender = 0;
 void loop () 
 {
+  /*
   unsigned long now = millis();
   if (now - lastRender > 250)
   {
     lastRender = now;
      currentScreen.render();
-  }
+  }*/
    
 
-  int value =  digitalRead(BUTTON_PIN);
-  UpdateEma(button, value);
+  UpdateEma(button, digitalRead(BUTTON_PIN));
 
   if ((int)button.s != 0 && (int)button.s != 1)
   {
@@ -199,11 +199,11 @@ void loop ()
   }
 }
 
-float angle = 0;
+//float angle = 0;
 
-void ButtonUp(bool longPress)
+void ButtonUp(bool isLongPress)
 {
-  currentScreen.buttonUp(longPress);
+  currentScreen.buttonUp(isLongPress);
 }
 
 void LongPressBegin()
@@ -226,7 +226,7 @@ void RenderEditDate()
   display.clearDisplay();
   int x, y;
   x = y = 10;
-  drawText("Render edit date", 1, x, y, left, false);
+  drawText_P(PSTR("Render edit date"), 1, x, y, left, false);
   display.display();
 }
 
@@ -284,14 +284,14 @@ void RenderEditTime()
   display.clearDisplay();
   int x, y;
   x = y = 10;
-  drawText("Render edit time", 1, x, y, left, false);
+  drawText_P(PSTR("Render edit time"), 1, x, y, left, false);
   y += 20;
 
   if (timeIndex == -1)
   {
     x = 64;
     y = 32;
-    drawText(is24hr ? "24hr" : "12hr", 2, x, y, center, false);
+    drawText_P(is24hr ? PSTR("24hr") : PSTR("12hr"), 2, x, y, center, false);
   }
   else
   {
@@ -357,7 +357,7 @@ void RenderDate()
   display.clearDisplay();
   int x, y;
   x = y = 10;
-  drawText("Render date", 1, x, y, left, false);
+  drawText_P(PSTR("Render date"), 1, x, y, left, false);
 
    //display date
   char data2[17];
@@ -374,7 +374,7 @@ void RenderFull()
   display.clearDisplay();
   int x, y;
   x = y = 10;
-  drawText("Render time", 1, x, y,left,false); y += 20;
+  drawText_P(PSTR("Render time"), 1, x, y, left, false); y += 20;
   char data[20];
   int hour = dateTime.hour();
   int minute = dateTime.minute();
@@ -457,7 +457,16 @@ void RenderFull()
   display.display();
 }
 
-void drawText(const String text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript)
+//#define     PSTR(s)   ((const PROGMEM char *)(s))
+//const __FlashStringHelper *
+void drawText_P(const char* text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript) 
+{
+     char buf[strlen_P(text)+1];
+     strcpy_P(buf, text);
+     drawText(buf, textSize, x, y, align, superscript);
+}
+
+void drawText(const char* text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript)
 {
   int16_t x1 = 0, y1 = 0;
   uint16_t w = 0, h = 0;
