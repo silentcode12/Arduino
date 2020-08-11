@@ -23,10 +23,10 @@ typedef struct
   void (*render)();
 }SCREEN;
 
-SCREEN full = {&ShowDate, &EnterSetTime, &RenderFull};
-SCREEN date = {&ShowTime, &EnderSetDate, &RenderDate};
-SCREEN editTime = {&EditTimeField, &SaveTimeField, &RenderEditTime};
-SCREEN editDate = {&EditDateField, &SaveDateField, &RenderEditDate};
+SCREEN timeScreen = {&ShowDate, &EnterSetTime, &RenderTime};
+SCREEN dateScreen = {&ShowTime, &EnterSetDate, &RenderDate};
+SCREEN editTimeScreen = {&EditTimeField, &SaveTimeField, &RenderEditTime};
+SCREEN editDateScreen = {&EditDateField, &SaveDateField, &RenderEditDate};
 
 volatile SCREEN currentScreen;
 
@@ -61,7 +61,7 @@ EMA temperature {0.9, 0};
 EMA altitude {0.1, 0};
 EMA pressure {0.1, 0};
 
-EMA button {0.5, 0};
+EMA button {0.5, 1};
 
 //Exponential Moving Average
 //https://www.norwegiancreations.com/2015/10/tutorial-potentiometers-with-arduino-and-filtering/
@@ -118,7 +118,7 @@ void setup ()
  // attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), pin2ISR, FALLING);
   attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
 
-  currentScreen = date;
+  currentScreen = dateScreen;
 }
 
 void pin3ISR()
@@ -221,7 +221,7 @@ void EditDateField(bool isLongPress)
 
 void SaveDateField()
 {
-  currentScreen=date;
+  currentScreen=dateScreen;
 }
 
 void RenderEditDate()
@@ -232,8 +232,6 @@ void RenderEditDate()
   drawText_P(PSTR("Render edit date"), 1, x, y, left, false);
   display.display();
 }
-
-
 
 void EditTimeField(bool isLongPress)
 {
@@ -274,7 +272,7 @@ void SaveTimeField()
     {
       DateTime newDateTime(dateTime.year(), dateTime.month(), dateTime.day(), time[0], time[1], time[2]);
       rtc.adjust(newDateTime);
-      currentScreen=full;
+      currentScreen = timeScreen;
       break;
     }
   }
@@ -290,6 +288,7 @@ void RenderEditTime()
 
   if (timeIndex == -1)
   {
+    //Display the clock mode (12hr/24hr) setting first
     x = 64;
     y = 32;
     drawText_P(is24hr ? PSTR("24hr") : PSTR("12hr"), 2, x, y, center, false);
@@ -303,7 +302,8 @@ void RenderEditTime()
       sprintf_P(data, PSTR("%02d:%02d:%02d %s"), time[0] > 12 ? time[0] - 12 : time[0], time[1], time[2], time[0] > 11 ? "P" : "A");
       
     drawText(data, 2, x, y, left, false);
-  
+
+    //Draw a selection line under the active field.  Use to two digit string for width.
     int w, h;
     display.getTextBounds(PSTR("00"), 0, 0, &x, &y, &w, &h);
     y = 45;
@@ -326,7 +326,7 @@ void ShowDate(bool isLongPress)
 {
   if (!isLongPress)
   {
-    currentScreen = date;
+    currentScreen = dateScreen;
   }
 }
 
@@ -336,20 +336,20 @@ void EnterSetTime()
   time[0] = dateTime.hour();
   time[1] = dateTime.minute();
   time[2] = dateTime.second();
-  currentScreen = editTime;
+  currentScreen = editTimeScreen;
 }
 
 void ShowTime(bool isLongPress)
 {
   if (!isLongPress)
   {
-    currentScreen = full;
+    currentScreen = timeScreen;
   }
 }
 
-void EnderSetDate()
+void EnterSetDate()
 {
-  currentScreen = editDate; 
+  currentScreen = editDateScreen; 
 }
 
 void RenderDate()
@@ -370,7 +370,7 @@ void RenderDate()
   display.display();
 }
 
-void RenderFull()
+void RenderTime()
 {
   display.clearDisplay();
   int x, y;
