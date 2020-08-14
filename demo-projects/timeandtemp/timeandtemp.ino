@@ -218,21 +218,38 @@ void LongPressBegin()
 //button up
 void EditDateField(bool isLongPress)
 {
-   if (!isLongPress)
-   {
+    if (!isLongPress)
+    {
+      short thousands = (time[0] % 10000) / 1000;
+      short hundreds = (time[0] % 1000) / 100;
+      short tens = (time[0] % 100) / 10;
+      short ones = time[0] %10;
+    
       switch (dateIndex)
       {
         case 0:
-          time[0] += 1000;
+          thousands++;
+          if (thousands > 9)
+            thousands = 1;
+            
           break;  //update 1000s
         case 1:
-          time[0] += 100;
+          hundreds++;
+          if (hundreds > 9)
+            hundreds = 0;
+
           break;//update 100s
         case 2:
-          time[0] += 10;
+           tens++;
+          if (tens > 9)
+            tens = 0;
+
           break;//update 10s
         case 3:
-          time[0] += 1;
+           ones++;
+          if (ones > 9)
+            ones = 0;
+
           break;//update 1s
         case 4:
           time[1] += 1;
@@ -262,6 +279,8 @@ void EditDateField(bool isLongPress)
             time[2] = 1;
           break;//update day
       }
+
+      time[0] = thousands * 1000 + hundreds * 100 + tens * 10 + ones;
    }
 }
 
