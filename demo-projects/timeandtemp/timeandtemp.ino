@@ -1,6 +1,6 @@
 #include <Adafruit_SSD1306.h>
 #include <RTClib.h>
-//#include <SparkFunBME280.h>
+#include <SparkFunBME280.h>
 
 //Data type definitions
 typedef struct 
@@ -23,8 +23,13 @@ typedef struct
   void (*render)();
 }SCREEN;
 
+//Display screen definitions
 SCREEN timeScreen = {&ShowDate, &EnterSetTime, &RenderTime};
-SCREEN dateScreen = {&ShowTime, &EnterSetDate, &RenderDate};
+SCREEN dateScreen = {&ShowTemp, &EnterSetDate, &RenderDate};
+SCREEN tempScreen = {&ShowPercentRh, &EnterSetTemp, &RenderTemp};
+SCREEN percentRhScreen = {&ShowTime, &EnterSetPercentRh, &RenderPercentRh};
+
+//Edit screen defintions
 SCREEN editTimeScreen = {&EditTimeField, &SaveTimeField, &RenderEditTime};
 SCREEN editDateScreen = {&EditDateField, &SaveDateField, &RenderEditDate};
 
@@ -54,7 +59,7 @@ volatile DateTime dateTime;
 //I2C devices
 Adafruit_SSD1306 display(OLED_RESET);
 RTC_DS3231 rtc;
-//BME280 bme280;
+BME280 bme280;
 
 //BME280 readings
 EMA percentRH {0.1, 0};
@@ -79,11 +84,6 @@ void setup ()
     while (1);
   }
 
-  //A way to set the current date time.
-  /*if (rtc.lostPower()) {
-  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  }*/
-
   rtc.writeSqwPinMode(Ds3231SqwPinMode::DS3231_SquareWave1Hz);
   dateTime = rtc.now();
 
@@ -91,7 +91,7 @@ void setup ()
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 
   //Configure the BME2800
-/*  bme280.settings.commInterface = I2C_MODE;
+  bme280.settings.commInterface = I2C_MODE;
   bme280.settings.I2CAddress = 0x76;
   bme280.settings.runMode = 3; //Normal mode
   bme280.settings.tStandby = 0;
@@ -100,9 +100,6 @@ void setup ()
   bme280.settings.pressOverSample = 1;
   bme280.settings.humidOverSample = 1;
   bme280.begin();
-*/
-  //Start the serial comm
-//  Serial.begin(9600);
 
   //Setup input pins
   pinMode(RTC_SQW_PIN, INPUT);         //Square wave from rtc
@@ -110,11 +107,11 @@ void setup ()
   pinMode(BUTTON_PIN, INPUT_PULLUP);  //Button pin
 
   //Prime the first value to avoid initial homing of average from zero.
-/*  percentRH.s = bme280.readFloatHumidity();
+  percentRH.s = bme280.readFloatHumidity();
   temperature.s = bme280.readTempF() + TEMP_CORRECTION;
   altitude.s = bme280.readFloatAltitudeFeet();
   pressure.s = bme280.readFloatPressure();
-*/
+
   //Setup interrupts
  // attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), pin2ISR, FALLING);
   attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
@@ -126,10 +123,10 @@ void pin3ISR()
 {
   interrupts(); //Enable interrupts so that I2C communication can work, equivalent to sei();
   dateTime = rtc.now();
-/*  UpdateEma(temperature, bme280.readTempF() + TEMP_CORRECTION);
+  UpdateEma(temperature, bme280.readTempF() + TEMP_CORRECTION);
   UpdateEma(percentRH, bme280.readFloatHumidity());
   UpdateEma(pressure, bme280.readFloatPressure());
-  UpdateEma(altitude, bme280.readFloatAltitudeFeet());*/
+  UpdateEma(altitude, bme280.readFloatAltitudeFeet());
   currentScreen.render();
 }
 
@@ -202,8 +199,6 @@ void loop ()
       }
   }
 }
-
-//float angle = 0;
 
 void ButtonUp(bool isLongPress)
 {
@@ -305,8 +300,6 @@ void SaveDateField()
   }
 }
 
-
-//short date = 0; //Y Y Y Y M D D, 1111 1111 1111 1111, 1111, 1111 1111
 void RenderEditDate()
 {
   display.clearDisplay();
@@ -314,10 +307,9 @@ void RenderEditDate()
   x = y = 10;
   drawText_P(PSTR("Render edit date"), 1, x, y, left, false);
   
-
-  int year = time[0];// date  >> 12 & 0xFFFF;  //Four Nibbles (Two bytes) for the four digits of the year 1900-2200
-  byte month = time[1];// date >> 8 &  0xFFF;  //One Nibble for the month 1-12
-  byte day = time[2]; //date & 0xFF;  //Two Nibbles (one byte) for the day 1-31
+  int year = time[0];
+  byte month = time[1];
+  byte day = time[2];
 
   y += 10;
   char data[6];
@@ -462,6 +454,24 @@ void ShowDate(bool isLongPress)
   }
 }
 
+void ShowTemp(bool isLongPress)
+{
+  if (!isLongPress)
+  {
+    currentScreen = tempScreen;
+  }
+}
+
+void EnterSetTemp()
+{
+  //do nothing for now
+}
+
+void EnterSetPercentRh()
+{
+  //do nothing for now
+}
+
 void EnterSetTime()
 {
   timeIndex = -1;
@@ -479,12 +489,17 @@ void ShowTime(bool isLongPress)
   }
 }
 
+void ShowPercentRh(bool isLongPress)
+{
+  if (!isLongPress)
+  {
+    currentScreen = percentRhScreen;
+  }
+}
+
 void EnterSetDate()
 {
   dateIndex = 0;
-  //date = dateTime.year() << 12 & 0xFFFF000;  //Four Nibbles (Two bytes) for the four digits of the year 1900-2200
-  //date |= dateTime.month() << 8   &  0xF00;  //One Nibble for the month 1-12
-  //date |= dateTime.day()            & 0xFF;  //Two Nibbles (one byte) for the day 1-31
 
   time[0] = dateTime.year();
   time[1] = dateTime.month();
@@ -495,18 +510,53 @@ void EnterSetDate()
 
 void RenderDate()
 {
-  //Serial.println("render date");
   display.clearDisplay();
   int x, y;
   x = y = 10;
   drawText_P(PSTR("Render date"), 1, x, y, left, false);
-
-   //display date
+  
+  //display date
   char data2[17];
   sprintf_P(data2, PSTR("%S\n%02d/%02d\n%d"), daysOfTheWeek[dateTime.dayOfTheWeek()], dateTime.month() ,dateTime.day(), dateTime.year());
   x = 0;
   y = 32;
   drawText(data2, 1, x, y, left, false);
+  
+  display.display();
+}
+
+void RenderTemp(){
+  display.clearDisplay();
+  int x, y;
+  x = y = 10;
+  drawText_P(PSTR("Render temp"), 1, x, y, left, false);
+
+  //display temp
+  char data[10];
+  dtostrf(temperature.s, 3, 1, data);
+  sprintf_P(data, PSTR("%s F"), data);
+
+  x = 0;
+  y = 32;
+  drawText(data, 2, x, y, left, false);
+
+  display.display();
+}
+
+void RenderPercentRh(){
+  display.clearDisplay();
+  int x, y;
+  x = y = 10;
+  drawText_P(PSTR("Render %RH"), 1, x, y, left, false);
+
+  //display humidity
+  char data[10];
+  dtostrf(percentRH.s, 3, 1, data);
+  sprintf_P(data, PSTR("%s %%"), data);
+
+  x = 0;
+  y = 32;
+  drawText(data, 2, x, y, left, false);
 
   display.display();
 }
@@ -529,45 +579,6 @@ void RenderTime()
     
   drawText(data, 2, x, y, left, false);
   
-  /*
-  Serial.println("render full");
-  display.clearDisplay();
-  display.setTextColor(WHITE);
-  display.setCursor(0,0);
-  display.setTextWrap(false);
-
-  // Display time
-  char data[6];
-  sprintf(data, "%02d:%02d", dateTime.hour(), dateTime.minute());
-  String a(data);
-  int16_t x = 65;
-  int16_t y = 12;
-  drawText(a, 3, x, y, center, false);
-
-  //Display temp
-  char data3[10];
-  dtostrf(temperature.s, 3, 1, data3);
-  sprintf(data3, "%sF", data3);
-  x = 0;
-  y = 63 - 16;
-  drawText(data3, 2, x, y, left, false);
-
-  //display % humidity
-  x = SSD1306_LCDWIDTH - 1;
-  y = SSD1306_LCDHEIGHT -1;
-
-  drawText("%", 1, x, y, right, true);
-  y = SSD1306_LCDHEIGHT -1;
-  drawText(String(percentRH.s, 1), 2, x, y, right, false);
-
-  //display date
-  char data2[17];
-  sprintf(data2, "%s, %d/%02d/%02d", daysOfTheWeek[dateTime.dayOfTheWeek()], dateTime.year(), dateTime.month() ,dateTime.day());
- 
-  x = 64;
-  y = 32;
-  drawText(data2, 1, x, y, center, false);
-*/
   //Things to experiement with...
   //setTextWrap
   //fillScreen
@@ -576,31 +587,9 @@ void RenderTime()
   //drawPixel
   //Adafruit_GFX_Button
 
-  //1 is default 6x8, 2 is 12x16, 3 is 18x24, etc
-
- // display.drawRoundRect(0, 0, SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT, /* radius*/ 4, /*color*/ 1);
-/*
-  const float radSecond = 0.10472;
-
-  angle = (radSecond * dateTime.second()) - (15 * radSecond);
-
-  //Serial.println(angle * 180/PI);
-   
-  float x2 = cos(angle);
-  float y2 = sin(angle);
-
-  display.drawLine(SSD1306_LCDWIDTH / 2, SSD1306_LCDHEIGHT/2, (x2*64) + SSD1306_LCDWIDTH / 2, (y2*64) + SSD1306_LCDHEIGHT/2, 1);
-  
-  
-  //Serial.println(angle);
-  //Serial.println();
-  */
-
   display.display();
 }
 
-//#define     PSTR(s)   ((const PROGMEM char *)(s))
-//const __FlashStringHelper *
 void drawText_P(const char* text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript) 
 {
      char buf[strlen_P(text)+1];
