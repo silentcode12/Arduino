@@ -40,12 +40,13 @@ volatile SCREEN currentScreen;
 const char daysOfTheWeek[7][4] PROGMEM = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};  //Stored in flash, read out using sprintf_P with %S
 
 //Variables
-byte timeIndex = 0;
+int timeIndex = 0;
+int dateIndex = 0;
 byte buttonV = 1;
 bool buttonUp = true;
 bool longPress = false;
 bool is24hr = true;  //todo:  read from EPROM
-byte time[] = {0, 0, 0};
+short time[] = {0, 0, 0};
 float last = 0;
 volatile DateTime dateTime;
 //volatile long lastFall = 0;
@@ -217,19 +218,131 @@ void LongPressBegin()
 //button up
 void EditDateField(bool isLongPress)
 {
+   if (!isLongPress)
+   {
+      switch (dateIndex)
+      {
+        case 0:
+          time[0] += 1000;
+          break;  //update 1000s
+        case 1:
+          time[0] += 100;
+          break;//update 100s
+        case 2:
+          time[0] += 10;
+          break;//update 10s
+        case 3:
+          time[0] += 1;
+          break;//update 1s
+        case 4:
+          time[1] += 1;
+          if (time[1] > 12)
+            time[1] = 1;
+          break;//update month
+        case 5:
+          byte max = 0;
+          switch(time[1])
+          {
+            case 2:
+              max = 28;//or 29 Feb2 for leap year
+              break;
+            case 4:
+            case 6:
+            case 9:
+            case 11:
+              max = 30;   //30, Apr4 Jun6 Sep9 Nov11
+              break;
+            default:
+              max = 31; //31, Jan1 Mar3 May5 Jul7 Aug8 Oct10 Dec12
+              break;
+          }
+          
+          time[2] += 1;
+          if (time[2] > max)
+            time[2] = 1;
+          break;//update day
+      }
+   }
 }
 
 void SaveDateField()
 {
-  currentScreen=dateScreen;
+  dateIndex++;
+  switch (dateIndex)
+  {
+    case 0: break;
+    case 1: break;
+    case 2: break;
+    case 3: break;
+    case 4: break;
+    case 5: break;
+    default: 
+    {
+      DateTime newDateTime(time[0], time[1], time[2], dateTime.hour(), dateTime.minute(), dateTime.second());
+      rtc.adjust(newDateTime);
+      currentScreen = dateScreen;
+      break;
+    }
+  }
 }
 
+
+//short date = 0; //Y Y Y Y M D D, 1111 1111 1111 1111, 1111, 1111 1111
 void RenderEditDate()
 {
   display.clearDisplay();
   int x, y;
   x = y = 10;
   drawText_P(PSTR("Render edit date"), 1, x, y, left, false);
+  
+
+  int year = time[0];// date  >> 12 & 0xFFFF;  //Four Nibbles (Two bytes) for the four digits of the year 1900-2200
+  byte month = time[1];// date >> 8 &  0xFFF;  //One Nibble for the month 1-12
+  byte day = time[2]; //date & 0xFF;  //Two Nibbles (one byte) for the day 1-31
+
+  y += 10;
+  char data[6];
+  if(dateIndex <= 3)
+  {
+    //set year
+    drawText_P(PSTR("Edit year"), 1, x, y, left, false);
+    y += 10;
+
+    sprintf_P(data, PSTR("%d"), year);
+
+    drawText(data, 1, x, y, left, false);
+    int w = 4;
+    for(y=45; y <48; y ++)
+    {
+      x = 10;
+      x = x 
+      + (dateIndex * w) //numeric digits width
+      + (dateIndex * w / 2);  //divider width
+      int x1 = x + w;  // underline the two digits
+      display.drawLine(x, y, x1, y, 1);
+    }
+  }
+  else if (dateIndex == 4)
+  {
+    //set month
+    drawText_P(PSTR("Edit month"), 1, x, y, left, false);
+    y += 10;
+
+     sprintf_P(data, PSTR("%d"), month);
+
+    drawText(data, 1, x, y, left, false);
+  }
+  else if (dateIndex == 5)
+  {
+    //set day
+    drawText_P(PSTR("Edit day"), 1, x, y, left, false);
+    y += 10;
+
+    sprintf_P(data, PSTR("%d"), day);
+
+    drawText(data, 1, x, y, left, false);
+  }
+
   display.display();
 }
 
@@ -349,6 +462,15 @@ void ShowTime(bool isLongPress)
 
 void EnterSetDate()
 {
+  dateIndex = 0;
+  //date = dateTime.year() << 12 & 0xFFFF000;  //Four Nibbles (Two bytes) for the four digits of the year 1900-2200
+  //date |= dateTime.month() << 8   &  0xF00;  //One Nibble for the month 1-12
+  //date |= dateTime.day()            & 0xFF;  //Two Nibbles (one byte) for the day 1-31
+
+  time[0] = dateTime.year();
+  time[1] = dateTime.month();
+  time[2] = dateTime.day();
+  
   currentScreen = editDateScreen; 
 }
 
