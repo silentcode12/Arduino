@@ -47,7 +47,7 @@ const char daysOfTheWeek[7][4] PROGMEM = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fr
 //Variables
 int timeIndex = 0;
 int dateIndex = 0;
-byte buttonV = 1;
+byte buttonState = 1;
 bool buttonUp = true;
 bool longPress = false;
 bool is24hr = true;  //todo:  read from EPROM
@@ -116,7 +116,7 @@ void setup ()
  // attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), pin2ISR, FALLING);
   attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
 
-  currentScreen = dateScreen;
+  currentScreen = timeScreen;
 }
 
 void pin3ISR()
@@ -152,18 +152,8 @@ void pin2ISR()
   Serial.println("down");*/
 }
 
-//unsigned long lastRender = 0;
 void loop () 
 {
-  /*
-  unsigned long now = millis();
-  if (now - lastRender > 250)
-  {
-    lastRender = now;
-     currentScreen.render();
-  }*/
-   
-
   UpdateEma(button, digitalRead(BUTTON_PIN));
 
   if ((byte)button.s != 0 && (byte)button.s != 1)
@@ -172,7 +162,7 @@ void loop ()
     return;
   }
 
-  if (buttonV != (byte)button.s)
+  if (buttonState != (byte)button.s)
   {
     if (button.s == 1)
     {
@@ -186,13 +176,13 @@ void loop ()
       last = millis();
     }
 
-    buttonV = (bool)button.s;
+    buttonState = (bool)button.s;
   }
 
   if (buttonUp == false)
   {
       float now = millis();
-      if (now - last > 1000 && !longPress)
+      if (now - last > 1500 && !longPress)
       {
         longPress = true; 
         LongPressBegin();
@@ -210,11 +200,19 @@ void LongPressBegin()
    currentScreen.beginLongPress();
 }
 
+bool IsLeapYear(short year)
+{
+    return ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) ?
+      true :
+      false;
+}
+
 //button up
 void EditDateField(bool isLongPress)
 {
     if (!isLongPress)
     {
+      //Deconstruct the year, Todo: Only do this when updated year parts
       short thousands = (time[0] % 10000) / 1000;
       short hundreds = (time[0] % 1000) / 100;
       short tens = (time[0] % 100) / 10;
@@ -256,16 +254,16 @@ void EditDateField(bool isLongPress)
           switch(time[1])
           {
             case 2:
-              max = 28;//or 29 Feb2 for leap year
+              max = IsLeapYear(time[0]) ? 29 : 28;
               break;
             case 4:
             case 6:
             case 9:
             case 11:
-              max = 30;   //30, Apr4 Jun6 Sep9 Nov11
+              max = 30;   //Apr4 Jun6 Sep9 Nov11
               break;
             default:
-              max = 31; //31, Jan1 Mar3 May5 Jul7 Aug8 Oct10 Dec12
+              max = 31; //Jan1 Mar3 May5 Jul7 Aug8 Oct10 Dec12
               break;
           }
           
@@ -275,6 +273,7 @@ void EditDateField(bool isLongPress)
           break;//update day
       }
 
+      //Reconstruct the year, Todo: Only do this when updated year parts
       time[0] = thousands * 1000 + hundreds * 100 + tens * 10 + ones;
    }
 }
@@ -429,13 +428,14 @@ void RenderEditTime()
 
     //Draw a selection line under the active field.  Use to two digit string for width.
     int w, h;
-    display.getTextBounds(PSTR("00"), 0, 0, &x, &y, &w, &h);
+    //display.setTextSize(1);
+   // display.getTextBounds(PSTR("00"), 0, 0, &x, &y, &w, &h);
+    w = 24;
     y = 45;
   
     for(y=45; y <48; y ++)
     {
-      x = 10;
-      x = x 
+      x = 10 
       + (timeIndex * w) //numeric digits width
       + (timeIndex * w / 2);  //divider width
       int x1 = x + w;  // underline the two digits
@@ -576,8 +576,10 @@ void RenderTime()
     sprintf_P(data, PSTR("%02d:%02d:%02d"), hour, minute, second);
   else
     sprintf_P(data, PSTR("%02d:%02d:%02d %s"), hour > 12 ? hour - 12 : hour, minute, second, hour > 12 ? "P" : "A");
-    
-  drawText(data, 2, x, y, left, false);
+
+  x = 64;
+  y = 40;
+  drawText(data, 2, x, y, center, false);
   
   //Things to experiement with...
   //setTextWrap
