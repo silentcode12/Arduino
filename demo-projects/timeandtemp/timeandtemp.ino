@@ -1,6 +1,7 @@
 #include <Adafruit_SSD1306.h>
 #include <RTClib.h>
 #include <SparkFunBME280.h>
+#include <EEPROM.h>
 
 //Data type definitions
 typedef struct 
@@ -15,6 +16,12 @@ typedef enum
   center,
   right
 } ALIGN;
+
+struct SETTINGS
+{
+  bool is24hr;
+  bool isMetric;
+};
 
 typedef struct
 {
@@ -50,7 +57,6 @@ int dateIndex = 0;
 byte buttonState = 1;
 bool buttonUp = true;
 bool longPress = false;
-bool is24hr = true;  //todo:  read from EPROM
 short time[] = {0, 0, 0};
 float last = 0;
 volatile DateTime dateTime;
@@ -205,6 +211,28 @@ bool IsLeapYear(short year)
     return ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) ?
       true :
       false;
+}
+
+//EEPROM memory mappings
+SETTINGS settings EEMEM = {false, false}; //todo:  Figure out how to initialize eeprom memory at flash time.  looks like a separate binary file...
+
+SETTINGS GetSettings()
+{
+  SETTINGS s;
+  EEPROM.get((int)&settings, s);
+  if (s.is24hr != 0 && s.is24hr != 1)
+  {
+    //EEPROM isn't initialized, do it now.
+    s.is24hr = false;
+    EEPROM.put(0, s);
+  }
+  
+  return s;
+}
+
+void PutSettings(SETTINGS s)
+{
+  EEPROM.put((int)&settings, s);
 }
 
 //button up
@@ -363,7 +391,11 @@ void EditTimeField(bool isLongPress)
     switch(timeIndex)
     {
       case -1:
-        is24hr = !is24hr;
+        SETTINGS s;
+        s = GetSettings();
+        s.is24hr = !s.is24hr;
+        //settings = s;
+        PutSettings(s);
         return;
       case 0: 
         if (time[0] >= 23)
@@ -414,12 +446,12 @@ void RenderEditTime()
     //Display the clock mode (12hr/24hr) setting first
     x = 64;
     y = 32;
-    drawText_P(is24hr ? PSTR("24hr") : PSTR("12hr"), 2, x, y, center, false);
+    drawText_P(GetSettings().is24hr ? PSTR("24hr") : PSTR("12hr"), 2, x, y, center, false);
   }
   else
   {
     char data[10];
-    if (is24hr)
+    if (GetSettings().is24hr)
       sprintf_P(data, PSTR("%02d:%02d:%02d"), time[0], time[1], time[2]);
     else
       sprintf_P(data, PSTR("%02d:%02d:%02d %S"), time[0] > 12 ? time[0] - 12 : time[0], time[1], time[2], time[0] > 11 ? PSTR("P") : PSTR("A"));
@@ -517,10 +549,10 @@ void RenderDate()
   
   //display date
   char data2[17];
-  sprintf_P(data2, PSTR("%S\n%02d/%02d\n%d"), daysOfTheWeek[dateTime.dayOfTheWeek()], dateTime.month() ,dateTime.day(), dateTime.year());
+  sprintf_P(data2, PSTR("%S %02d/%02d\n%d"), daysOfTheWeek[dateTime.dayOfTheWeek()], dateTime.month() ,dateTime.day(), dateTime.year());
   x = 0;
   y = 32;
-  drawText(data2, 1, x, y, left, false);
+  drawText(data2, 2, x, y, left, false);
   
   display.display();
 }
@@ -536,9 +568,9 @@ void RenderTemp(){
   dtostrf(temperature.s, 3, 1, data);
   sprintf_P(data, PSTR("%s F"), data);
 
-  x = 0;
-  y = 32;
-  drawText(data, 2, x, y, left, false);
+  x = 64;
+  y = 40;
+  drawText(data, 2, x, y, center, false);
 
   display.display();
 }
@@ -554,9 +586,9 @@ void RenderPercentRh(){
   dtostrf(percentRH.s, 3, 1, data);
   sprintf_P(data, PSTR("%s %%"), data);
 
-  x = 0;
-  y = 32;
-  drawText(data, 2, x, y, left, false);
+  x = 64;
+  y = 40;
+  drawText(data, 2, x, y, center, false);
 
   display.display();
 }
@@ -572,7 +604,7 @@ void RenderTime()
   int minute = dateTime.minute();
   int second = dateTime.second();
   
-  if (is24hr)
+  if (GetSettings().is24hr)
     sprintf_P(data, PSTR("%02d:%02d:%02d"), hour, minute, second);
   else
     sprintf_P(data, PSTR("%02d:%02d:%02d %s"), hour > 12 ? hour - 12 : hour, minute, second, hour > 12 ? "P" : "A");
