@@ -304,7 +304,7 @@ void RenderEditDate()
   display.clearDisplay();
   int x, y;
   x = y = 10;
-  drawText_P(PSTR("Render edit date"), 1, x, y, left, false);
+  drawText_P(PSTR("Edit date"), 1, x, y, left, false);
   
   int year = time[0];
   byte month = time[1];
@@ -406,7 +406,7 @@ void RenderEditTime()
   display.clearDisplay();
   int x, y;
   x = y = 10;
-  drawText_P(PSTR("Render edit time"), 1, x, y, left, false);
+  drawText_P(PSTR("Edit time"), 1, x, y, left, false);
   y += 20;
 
   if (timeIndex == -1)
@@ -422,7 +422,7 @@ void RenderEditTime()
     if (is24hr)
       sprintf_P(data, PSTR("%02d:%02d:%02d"), time[0], time[1], time[2]);
     else
-      sprintf_P(data, PSTR("%02d:%02d:%02d %s"), time[0] > 12 ? time[0] - 12 : time[0], time[1], time[2], time[0] > 11 ? "P" : "A");
+      sprintf_P(data, PSTR("%02d:%02d:%02d %S"), time[0] > 12 ? time[0] - 12 : time[0], time[1], time[2], time[0] > 11 ? PSTR("P") : PSTR("A"));
       
     drawText(data, 2, x, y, left, false);
 
@@ -513,7 +513,7 @@ void RenderDate()
   display.clearDisplay();
   int x, y;
   x = y = 10;
-  drawText_P(PSTR("Render date"), 1, x, y, left, false);
+  drawText_P(PSTR("Date"), 1, x, y, left, false);
   
   //display date
   char data2[17];
@@ -529,7 +529,7 @@ void RenderTemp(){
   display.clearDisplay();
   int x, y;
   x = y = 10;
-  drawText_P(PSTR("Render temp"), 1, x, y, left, false);
+  drawText_P(PSTR("Temp"), 1, x, y, left, false);
 
   //display temp
   char data[10];
@@ -547,7 +547,7 @@ void RenderPercentRh(){
   display.clearDisplay();
   int x, y;
   x = y = 10;
-  drawText_P(PSTR("Render %RH"), 1, x, y, left, false);
+  drawText_P(PSTR("%RH"), 1, x, y, left, false);
 
   //display humidity
   char data[10];
@@ -566,7 +566,7 @@ void RenderTime()
   display.clearDisplay();
   int x, y;
   x = y = 10;
-  drawText_P(PSTR("Render time"), 1, x, y, left, false); y += 20;
+  drawText_P(PSTR("Time"), 1, x, y, left, false); y += 20;
   char data[20];
   int hour = dateTime.hour();
   int minute = dateTime.minute();
