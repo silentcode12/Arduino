@@ -224,7 +224,7 @@ SETTINGS GetSettings()
   {
     //EEPROM isn't initialized, do it now.
     s.is24hr = false;
-    EEPROM.put(0, s);
+    EEPROM.put((int)&settings, s);
   }
   
   return s;
