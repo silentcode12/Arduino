@@ -127,13 +127,23 @@ void setup ()
 
 void pin3ISR()
 {
+  static boolean IsRunning = false;
+  if(IsRunning) 
+    return;
+  
+  IsRunning = true;
+  
   interrupts(); //Enable interrupts so that I2C communication can work, equivalent to sei();
+  
   dateTime = rtc.now();
   UpdateEma(temperature, bme280.readTempF() + TEMP_CORRECTION);
   UpdateEma(percentRH, bme280.readFloatHumidity());
   UpdateEma(pressure, bme280.readFloatPressure());
   UpdateEma(altitude, bme280.readFloatAltitudeFeet());
   currentScreen.render();
+
+  noInterrupts();
+  IsRunning = false;
 }
 
 void pin2ISR()
@@ -158,6 +168,13 @@ void pin2ISR()
   Serial.println("down");*/
 }
 
+void UpdateImmediate()
+{
+  noInterrupts();
+  pin3ISR();
+  interrupts();
+}
+
 void loop () 
 {
   UpdateEma(button, digitalRead(BUTTON_PIN));
@@ -173,6 +190,7 @@ void loop ()
     if (button.s == 1)
     {
       ButtonUp(longPress);
+      UpdateImmediate();
       longPress = false;
       buttonUp = true;
     }
@@ -188,10 +206,11 @@ void loop ()
   if (buttonUp == false)
   {
       float now = millis();
-      if (now - last > 1500 && !longPress)
+      if (now - last > 2000 && !longPress)
       {
         longPress = true; 
         LongPressBegin();
+        UpdateImmediate();
       }
   }
 }
