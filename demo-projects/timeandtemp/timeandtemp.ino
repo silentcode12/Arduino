@@ -175,6 +175,33 @@ void UpdateImmediate()
   interrupts();
 }
 
+void playAnimation()
+{
+  noInterrupts();
+  detachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN));
+  interrupts();
+  
+  for (int vHoldPos = SSD1306_LCDHEIGHT; vHoldPos > 0; vHoldPos--)
+  {  
+    for (int x = 0; x < SSD1306_LCDWIDTH; x += 4)
+    {
+      for (int y = 0; y < SSD1306_LCDHEIGHT; y += 4)
+      {
+        long color = random(0, 4) % 2;
+        display.fillRect(x, y, 4, 4, color);
+      }
+    }
+
+    display.fillRect(0, vHoldPos, SSD1306_LCDWIDTH, 15, 0);
+
+    vHoldPos -= 4;
+    
+    display.display();
+  }
+
+  attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
+}
+
 void loop () 
 {
   UpdateEma(button, digitalRead(BUTTON_PIN));
@@ -501,6 +528,7 @@ void ShowDate(bool isLongPress)
 {
   if (!isLongPress)
   {
+    playAnimation();
     currentScreen = dateScreen;
   }
 }
@@ -509,6 +537,7 @@ void ShowTemp(bool isLongPress)
 {
   if (!isLongPress)
   {
+    playAnimation();
     currentScreen = tempScreen;
   }
 }
@@ -536,6 +565,7 @@ void ShowTime(bool isLongPress)
 {
   if (!isLongPress)
   {
+    playAnimation();
     currentScreen = timeScreen;
   }
 }
@@ -544,6 +574,7 @@ void ShowPercentRh(bool isLongPress)
 {
   if (!isLongPress)
   {
+    playAnimation();
     currentScreen = percentRhScreen;
   }
 }
@@ -622,23 +653,17 @@ void RenderTime()
   int hour = dateTime.hour();
   int minute = dateTime.minute();
   int second = dateTime.second();
+
+  char tick = second % 2 == 1 ? ':' : ' ';
   
   if (GetSettings().is24hr)
-    sprintf_P(data, PSTR("%02d:%02d:%02d"), hour, minute, second);
+    sprintf_P(data, PSTR("%02d%c%02d"), hour, tick, minute);
   else
-    sprintf_P(data, PSTR("%02d:%02d:%02d %s"), hour > 12 ? hour - 12 : hour, minute, second, hour > 12 ? "P" : "A");
+    sprintf_P(data, PSTR("%02d%c%02d %s"), hour > 12 ? hour - 12 : hour, tick, minute, hour > 12 ? "P" : "A");
 
   x = 64;
   y = 40;
-  drawText(data, 2, x, y, center, false);
-  
-  //Things to experiement with...
-  //setTextWrap
-  //fillScreen
-  //drawLine
-  //drawRect
-  //drawPixel
-  //Adafruit_GFX_Button
+  drawText(data, 3, x, y, center, false);
 
   display.display();
 }
