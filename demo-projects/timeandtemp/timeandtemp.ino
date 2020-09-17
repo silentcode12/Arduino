@@ -140,6 +140,7 @@ void pin3ISR()
   UpdateEma(percentRH, bme280.readFloatHumidity());
   UpdateEma(pressure, bme280.readFloatPressure());
   UpdateEma(altitude, bme280.readFloatAltitudeFeet());
+
   currentScreen.render();
 
   noInterrupts();
@@ -620,7 +621,7 @@ void RenderTemp(){
 
   x = 64;
   y = 40;
-  drawText(data, 2, x, y, center, false);
+  drawText(data, 3, x, y, center, false);
 
   display.display();
 }
@@ -638,7 +639,7 @@ void RenderPercentRh(){
 
   x = 64;
   y = 40;
-  drawText(data, 2, x, y, center, false);
+  drawText(data, 3, x, y, center, false);
 
   display.display();
 }
