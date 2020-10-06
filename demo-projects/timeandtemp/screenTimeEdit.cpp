@@ -1,3 +1,4 @@
+#include "commonTypes.h"
 #include "Adafruit_GFX.h"
 #include <Adafruit_SSD1306.h>
 #include <RTClib.h>
@@ -10,14 +11,61 @@ ScreenTimeEdit::ScreenTimeEdit()
   timeIndex = 0;
 }
 
+
+void ScreenTimeEdit::OnShow(const Context* context)
+{
+  DateTime dateTime = context->GetCurrentDateTime();
+  timeIndex = -1;
+  time[0] = dateTime.hour();
+  time[1] = dateTime.minute();
+  time[2] = dateTime.second();
+}
+
 void ScreenTimeEdit::ProcessCommitAction(const Context* context)
 {
- 
+ timeIndex++;
+  switch (timeIndex)
+  {
+    case -1: break;
+    case 0: break;
+    case 1: break;
+    case 2: break;
+    default: 
+    {
+      DateTime dateTime = context->GetCurrentDateTime();
+      DateTime newDateTime(dateTime.year(), dateTime.month(), dateTime.day(), time[0], time[1], time[2]);
+      context->SetDateTime(dateTime);
+      context->GotoTimeScreen();
+      break;
+    }
+  }
 }
 
 void ScreenTimeEdit::ProcessUpdateAction(const Context* context)
 {
- 
+  switch(timeIndex)
+    {
+      case -1:
+        SETTINGS s;
+        s = context->GetSettings();
+        s.is24hr = !s.is24hr;
+        //settings = s;
+        context->SetSettings(s);
+        return;
+      case 0: 
+        if (time[0] >= 23)
+          time[0] = 0;
+        break;
+      case 1: 
+        if(time[1] >= 59)
+          time[1] = -1;
+        break;
+      case 2:
+        time[2] = 0; //Note:  reset seconds to zero for synchronization, will count up
+        return;
+    }
+    
+    time[timeIndex]++;
 }
 
 void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* context)

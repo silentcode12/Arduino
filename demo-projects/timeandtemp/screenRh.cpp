@@ -1,3 +1,4 @@
+#include "commonTypes.h"
 #include "Adafruit_GFX.h"
 #include <Adafruit_SSD1306.h>
 #include <RTClib.h>
@@ -7,13 +8,16 @@
 
 void ScreenRh::ProcessCommitAction(const Context* context)
 {
- 
+   context->GotoTimeScreen();
 }
 
 void ScreenRh::ProcessUpdateAction(const Context* context)
 {
  
 }
+
+void ScreenRh::OnShow(const Context* context)
+{}
 
 void ScreenRh::Render(const Adafruit_SSD1306* display, const Context* context)
 {
