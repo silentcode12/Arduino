@@ -4,11 +4,7 @@ typedef struct _SETTINGS
   bool isMetric;
 }SETTINGS;
 
-typedef struct 
-{
-  float a;      //initialization of EMA alpha
-  float s;      //initialization of EMA S
-} EMA;
+#define TEMP_CORRECTION -10.0
 
 const char daysOfTheWeek[7][4] PROGMEM = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};  //Stored in flash, read out using sprintf_P with %S
 
@@ -16,12 +12,30 @@ class Screen;
 
 class Context
 {
+  public:
+  Context(const RTC_DS3231& rtc, const BME280& bme280, const Adafruit_SSD1306& display, const void (*playAnimationCallback)());
+  
   private:
-    //Display screen definitions
+    RTC_DS3231* rtc;
+    BME280* bme280;
+    Adafruit_SSD1306* display;
     
     Screen* currentScreen;
+    //BME280 readings
+    EMA percentRH {0.1, 0};
+    EMA temperature {0.9, 0};
+    EMA altitude {0.1, 0};
+    EMA pressure {0.1, 0};
 
+    DateTime dateTime;
+
+    void (*playAnimationCallback)();
+    
   public:
+      void RefreshData();
+      void Begin();
+
+  
     DateTime GetCurrentDateTime();
     void SetDateTime(DateTime& newDateTime);
     

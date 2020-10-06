@@ -4,117 +4,24 @@
 #include <SparkFunBME280.h>
 #include "context.h"
 #include "screen.h"
-#include "screenTime.h"
-#include "screenTimeEdit.h"
-#include "screenDate.h"
-#include "screenDateEdit.h"
-#include "screenTemp.h"
-#include "screenRh.h"
-
-Context context;
 
 //Constants
 #define OLED_RESET 4
 #define BUTTON_PIN 2
 #define RTC_SQW_PIN 3
 #define RTC_32K_PIN 5
-#define TEMP_CORRECTION -10.0
 
 //Variables
 byte buttonState = 1;
 bool buttonUp = true;
 bool longPress = false;
 float last = 0;
-volatile DateTime dateTime;
+//volatile DateTime dateTime;
 
 //I2C devices
 Adafruit_SSD1306 display(OLED_RESET);
 RTC_DS3231 rtc;
 BME280 bme280;
-
-//BME280 readings
-EMA percentRH {0.1, 0};
-EMA temperature {0.9, 0};
-EMA altitude {0.1, 0};
-EMA pressure {0.1, 0};
-
-EMA button {0.5, 1};
-
-//Exponential Moving Average
-//https://www.norwegiancreations.com/2015/10/tutorial-potentiometers-with-arduino-and-filtering/
-void UpdateEma(EMA& ema, float sample)
-{
-  ema.s = (ema.a * sample) + ((1-ema.a)*ema.s);    //run the EMA
-}
-
-void setup () 
-{
-  //Configure the RTC
-  if (! rtc.begin()) 
-  {
-    while (1);
-  }
-
-  rtc.writeSqwPinMode(Ds3231SqwPinMode::DS3231_SquareWave1Hz);
-  dateTime = rtc.now();
-
-  //Initialize the display
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-
-  //Configure the BME2800
-  bme280.settings.commInterface = I2C_MODE;
-  bme280.settings.I2CAddress = 0x76;
-  bme280.settings.runMode = 3; //Normal mode
-  bme280.settings.tStandby = 0;
-  bme280.settings.filter = 0;
-  bme280.settings.tempOverSample = 1;
-  bme280.settings.pressOverSample = 1;
-  bme280.settings.humidOverSample = 1;
-  bme280.begin();
-
-  //Setup input pins
-  pinMode(RTC_SQW_PIN, INPUT);         //Square wave from rtc
-  pinMode(RTC_32K_PIN, INPUT);        //32K from rtc, useless as no interop on nano
-  pinMode(BUTTON_PIN, INPUT_PULLUP);  //Button pin
-
-  //Prime the first value to avoid initial homing of average from zero.
-  percentRH.s = bme280.readFloatHumidity();
-  temperature.s = bme280.readTempF() + TEMP_CORRECTION;
-  altitude.s = bme280.readFloatAltitudeFeet();
-  pressure.s = bme280.readFloatPressure();
-
-  //Setup interrupts
-  attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
-}
-
-void pin3ISR()
-{
-  static boolean IsRunning = false;
-  if(IsRunning) 
-    return;
-  
-  IsRunning = true;
-  
-  interrupts(); //Enable interrupts so that I2C communication can work, equivalent to sei();
-  
-  dateTime = rtc.now();
-  UpdateEma(temperature, bme280.readTempF() + TEMP_CORRECTION);
-  UpdateEma(percentRH, bme280.readFloatHumidity());
-  UpdateEma(pressure, bme280.readFloatPressure());
-  UpdateEma(altitude, bme280.readFloatAltitudeFeet());
-
-  context.GetCurrentScreen()->Render(&display, &context);
-
-  noInterrupts();
-  IsRunning = false;
-}
-
-void UpdateImmediate()
-{
-  noInterrupts();
-  pin3ISR();
-  interrupts();
-}
 
 void playAnimation()
 {
@@ -142,6 +49,78 @@ void playAnimation()
 
   attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
 }
+
+Context context(rtc, bme280, display, &playAnimation);
+
+EMA button {0.5, 1};
+
+void setup () 
+{
+  //Configure the RTC
+  if (! rtc.begin()) 
+  {
+    while (1);
+  }
+
+  rtc.writeSqwPinMode(Ds3231SqwPinMode::DS3231_SquareWave1Hz);
+
+  //Initialize the display
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+
+  //Configure the BME2800
+  bme280.settings.commInterface = I2C_MODE;
+  bme280.settings.I2CAddress = 0x76;
+  bme280.settings.runMode = 3; //Normal mode
+  bme280.settings.tStandby = 0;
+  bme280.settings.filter = 0;
+  bme280.settings.tempOverSample = 1;
+  bme280.settings.pressOverSample = 1;
+  bme280.settings.humidOverSample = 1;
+  bme280.begin();
+
+  //Setup input pins
+  pinMode(RTC_SQW_PIN, INPUT);         //Square wave from rtc
+  pinMode(RTC_32K_PIN, INPUT);        //32K from rtc, useless as no interop on nano
+  pinMode(BUTTON_PIN, INPUT_PULLUP);  //Button pin
+
+  context.Begin();
+
+  //Setup interrupts
+  attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
+}
+
+void pin3ISR()
+{
+  static boolean IsRunning = false;
+  if(IsRunning) 
+    return;
+  
+  IsRunning = true;
+  
+  interrupts(); //Enable interrupts so that I2C communication can work, equivalent to sei();
+  
+  context.RefreshData();
+  context.GetCurrentScreen()->Render(&display, &context);
+
+  noInterrupts();
+  IsRunning = false;
+}
+
+//Exponential Moving Average
+//https://www.norwegiancreations.com/2015/10/tutorial-potentiometers-with-arduino-and-filtering/
+void UpdateEma(EMA& ema, float sample)
+{
+  ema.s = (ema.a * sample) + ((1-ema.a)*ema.s);    //run the EMA
+}
+
+void UpdateImmediate()
+{
+  noInterrupts();
+  pin3ISR();
+  interrupts();
+}
+
+
 
 void loop () 
 {
