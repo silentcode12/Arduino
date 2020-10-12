@@ -3,7 +3,6 @@
 #include <RTClib.h>
 #include <SparkFunBME280.h>
 #include "context.h"
-#include "screen.h"
 
 //Constants
 #define OLED_RESET 4
@@ -24,28 +23,32 @@ BME280 bme280;
 
 void playAnimation()
 {
+  //Prevent the update interupt from painting the current screen during the animation.
   noInterrupts();
   detachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN));
   interrupts();
-  
+
+  //Draw random on/off 4 x 4 squares across screen 
   for (int vHoldPos = SSD1306_LCDHEIGHT; vHoldPos > 0; vHoldPos--)
   {  
-    for (int x = 0; x < SSD1306_LCDWIDTH; x += 4)
+    for (int x = 0; x < SSD1306_LCDWIDTH; x += 4)  // go across the screen left to right
     {
-      for (int y = 0; y < SSD1306_LCDHEIGHT; y += 4)
+      for (int y = 0; y < SSD1306_LCDHEIGHT; y += 4) //go down the screen top to bottom
       {
-        long color = random(0, 4) % 2;
+        long color = random(0, 4) % 2;  // Generate random 0 or 1.  Apparently random(0, 1) doesn't work.
         display.fillRect(x, y, 4, 4, color);
       }
     }
 
+    //Draw a horizontall bar that moves up the screen to simulate vertical hold
     display.fillRect(0, vHoldPos, SSD1306_LCDWIDTH, 15, 0);
 
     vHoldPos -= 4;
     
-    display.display();
+    display.display();  //Note:  on the nano, this operation is slow enough that no delay is needed
   }
 
+  //Animation complete, allow normal screen updates.
   attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
 }
 
@@ -63,7 +66,7 @@ void setup ()
 
   rtc.writeSqwPinMode(Ds3231SqwPinMode::DS3231_SquareWave1Hz);
 
-  //Initialize the display
+  //Configure the display
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 
   //Configure the BME2800
@@ -79,9 +82,9 @@ void setup ()
 
   //Setup input pins
   pinMode(RTC_SQW_PIN, INPUT);         //Square wave from rtc
-  pinMode(RTC_32K_PIN, INPUT);        //32K from rtc, useless as no interop on nano
   pinMode(BUTTON_PIN, INPUT_PULLUP);  //Button pin
 
+  //Configure the context
   context.Begin();
 
   //Setup interrupts
@@ -99,7 +102,7 @@ void pin3ISR()
   interrupts(); //Enable interrupts so that I2C communication can work, equivalent to sei();
   
   context.RefreshData();
-  context.GetCurrentScreen()->Render(&display, &context);
+  context.RefreshDisplay();
 
   noInterrupts();
   IsRunning = false;
@@ -163,11 +166,11 @@ void ButtonUp(bool isLongPress)
 {
   if (!isLongPress)
   {
-    context.GetCurrentScreen()->ProcessUpdateAction(&context);
+    context.UpdateInput();
   }
 }
 
 void LongPressBegin()
 {
-   context.GetCurrentScreen()->ProcessCommitAction(&context);
+   context.CommitInput();
 }

@@ -22,6 +22,7 @@ class Context
     Adafruit_SSD1306* display;
     
     Screen* currentScreen;
+    
     //BME280 readings
     EMA percentRH {0.1, 0};
     EMA temperature {0.9, 0};
@@ -35,25 +36,27 @@ class Context
   public:
     void RefreshData();
     void Begin();
+	  void UpdateInput();
+	  void CommitInput();
+    void RefreshDisplay();
 
-	//Data methods
+	  //Data methods
     DateTime GetDateTime();
     void SetDateTime(DateTime& newDateTime);
 	
-	EMA GetPercentRh();
+	  EMA GetPercentRh();
 	
     EMA GetTemperature();
     
-	//Navigation methods
+	  //Navigation methods
     void GotoDateScreen();
     void GotoTimeScreen();
     void GotoTimeEditScreen();
     void GotoDateEditScreen();
     void GotoRhScreen();
     void GotoTempScreen();
-    const Screen* GetCurrentScreen();
 	
-	//Settings methods
+	  //Settings methods
     SETTINGS GetSettings();
     void SetSettings(SETTINGS settings);
 };

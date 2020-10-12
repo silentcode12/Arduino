@@ -138,7 +138,17 @@ EMA Context::GetTemperature()
   return temperature;
 }
 
-const Screen* Context::GetCurrentScreen()
+void Context::UpdateInput()
 {
-	return currentScreen;
+	currentScreen->ProcessUpdateAction(this);
+}
+
+void Context::CommitInput()
+{
+	currentScreen->ProcessCommitAction(this);
+}
+
+void Context::RefreshDisplay()
+{
+  currentScreen->Render(display, this);
 }
