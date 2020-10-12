@@ -13,7 +13,7 @@ class Screen;
 class Context
 {
 	public:
-		Context(const RTC_DS3231& rtc, const BME280& bme280, const Adafruit_SSD1306& display, const void (*playAnimationCallback)());
+		Context(const RTC_DS3231* rtc, const BME280* bme280, const Adafruit_SSD1306* display, const void (*playAnimationCallback)());
 		~Context();
 		
   private:

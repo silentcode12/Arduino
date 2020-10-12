@@ -52,7 +52,7 @@ void playAnimation()
   attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
 }
 
-Context context(rtc, bme280, display, &playAnimation);
+Context context(&rtc, &bme280, &display, &playAnimation);
 
 EMA button {0.5, 1};
 

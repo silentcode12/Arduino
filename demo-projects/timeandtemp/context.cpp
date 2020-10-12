@@ -17,12 +17,12 @@
 //EEPROM memory mappings
 SETTINGS settings EEMEM = {false, false}; //todo:  Figure out how to initialize eeprom memory at flash time.  looks like a separate binary file...
 
-Context::Context(const RTC_DS3231& rtc, const BME280& bme280, const Adafruit_SSD1306& display, const void (*playAnimationCallback)())
+Context::Context(const RTC_DS3231* rtc, const BME280* bme280, const Adafruit_SSD1306* display, const void (*playAnimationCallback)())
 {
-  this->rtc = &rtc;
-  this->bme280 = &bme280;
+  this->rtc = rtc;
+  this->bme280 = bme280;
   currentScreen = new ScreenTime();
-  this->display = &display;
+  this->display = display;
   this->playAnimationCallback = playAnimationCallback;
 }
 
