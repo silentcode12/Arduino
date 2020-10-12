@@ -13,7 +13,7 @@
 //Variables
 byte buttonState = 1;
 bool buttonUp = true;
-bool longPress = false;
+bool isLongPress = false;
 float last = 0;
 
 //I2C devices
@@ -59,11 +59,7 @@ EMA button {0.5, 1};
 void setup () 
 {
   //Configure the RTC
-  if (! rtc.begin()) 
-  {
-    while (1);
-  }
-
+  rtc.begin();
   rtc.writeSqwPinMode(Ds3231SqwPinMode::DS3231_SquareWave1Hz);
 
   //Configure the display
@@ -136,9 +132,9 @@ void loop ()
   {
     if (button.s == 1)
     {
-      ButtonUp(longPress);
+      ButtonUp();
       UpdateImmediate();
-      longPress = false;
+      isLongPress = false;
       buttonUp = true;
     }
     else
@@ -153,16 +149,16 @@ void loop ()
   if (buttonUp == false)
   {
       float now = millis();
-      if (now - last > 2000 && !longPress)
+      if (now - last > 2000 && !isLongPress)
       {
-        longPress = true; 
+        isLongPress = true; 
         LongPressBegin();
         UpdateImmediate();
       }
   }
 }
 
-void ButtonUp(bool isLongPress)
+void ButtonUp()
 {
   if (!isLongPress)
   {

@@ -9,12 +9,12 @@
 
 void ScreenRh::ProcessCommitAction(const Context* context)
 {
-   context->GotoTimeScreen();
+   
 }
 
 void ScreenRh::ProcessUpdateAction(const Context* context)
 {
- 
+ context->GotoTimeScreen();
 }
 
 void ScreenRh::OnShow(const Context* context)
