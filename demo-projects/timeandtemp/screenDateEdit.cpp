@@ -15,15 +15,13 @@ ScreenDateEdit::ScreenDateEdit()
 
 void ScreenDateEdit::OnShow(const Context* context)
 {
-  DateTime dateTime = context->GetCurrentDateTime();
+  DateTime dateTime = context->GetDateTime();
   dateIndex = 0;
 
   date[0] = dateTime.year();
   date[1] = dateTime.month();
   date[2] = dateTime.day();
 }
-
-
 
 void ScreenDateEdit::ProcessCommitAction(const Context* context)
 {
@@ -38,7 +36,7 @@ void ScreenDateEdit::ProcessCommitAction(const Context* context)
       case 5: break;
       default: 
       {
-        DateTime dateTime = context->GetCurrentDateTime();
+        DateTime dateTime = context->GetDateTime();
         
         DateTime newDateTime(date[0], date[1], date[2], dateTime.hour(), dateTime.minute(), dateTime.second());
         context->SetDateTime(newDateTime);
@@ -92,7 +90,7 @@ void ScreenDateEdit::ProcessUpdateAction(const Context* context)
           switch(date[1])
           {
             case 2:
-              max = context->IsLeapYear(date[0]) ? 29 : 28;
+              max = IsLeapYear(date[0]) ? 29 : 28;
               break;
             case 4:
             case 6:
@@ -171,4 +169,11 @@ void ScreenDateEdit::Render(const Adafruit_SSD1306* display, const Context* cont
   }
 
   display->display();
+}
+
+bool ScreenDateEdit::IsLeapYear(short year)
+{
+    return ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) ?
+      true :
+      false;
 }

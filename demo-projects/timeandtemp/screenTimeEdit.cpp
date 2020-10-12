@@ -16,7 +16,7 @@ ScreenTimeEdit::ScreenTimeEdit()
 
 void ScreenTimeEdit::OnShow(const Context* context)
 {
-  DateTime dateTime = context->GetCurrentDateTime();
+  DateTime dateTime = context->GetDateTime();
   timeIndex = -1;
   time[0] = dateTime.hour();
   time[1] = dateTime.minute();
@@ -34,7 +34,7 @@ void ScreenTimeEdit::ProcessCommitAction(const Context* context)
     case 2: break;
     default: 
     {
-      DateTime dateTime = context->GetCurrentDateTime();
+      DateTime dateTime = context->GetDateTime();
       DateTime newDateTime(dateTime.year(), dateTime.month(), dateTime.day(), time[0], time[1], time[2]);
       context->SetDateTime(dateTime);
       context->GotoTimeScreen();

@@ -17,7 +17,9 @@ void ScreenTime::ProcessUpdateAction(const Context* context)
    context->GotoDateScreen();
 }
 
-void ScreenTime::OnShow(const Context* context){}
+void ScreenTime::OnShow(const Context* context)
+{
+}
 
 void ScreenTime::Render(const Adafruit_SSD1306* display, const Context* context)
 {
@@ -27,7 +29,7 @@ void ScreenTime::Render(const Adafruit_SSD1306* display, const Context* context)
   drawText_P(display, PSTR("Time"), 1, x, y, left, false); y += 20;
   char data[20];
 
-  DateTime dateTime = context->GetCurrentDateTime();
+  DateTime dateTime = context->GetDateTime();
   int hour = dateTime.hour();
   int minute = dateTime.minute();
   int second = dateTime.second();

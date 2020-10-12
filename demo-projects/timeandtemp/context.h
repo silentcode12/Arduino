@@ -32,28 +32,30 @@ class Context
     void (*playAnimationCallback)();
     
   public:
-      void RefreshData();
-      void Begin();
+    void RefreshData();
+    void Begin();
 
-  
-    DateTime GetCurrentDateTime();
+	//Data methods
+    DateTime GetDateTime();
     void SetDateTime(DateTime& newDateTime);
+	
+	EMA GetPercentRh();
+	
+    EMA GetTemperature();
     
+	//Navigation methods
     void GotoDateScreen();
     void GotoTimeScreen();
     void GotoTimeEditScreen();
     void GotoDateEditScreen();
     void GotoRhScreen();
     void GotoTempScreen();
-
-    
+    const Screen* GetCurrentScreen();
+	
+	//Settings methods
     SETTINGS GetSettings();
     void SetSettings(SETTINGS settings);
-    EMA GetPercentRh();
-    EMA GetTemperature();
-    bool IsLeapYear(short year);
-
+	
     Context();
     ~Context();
-    const Screen* GetCurrentScreen(){return currentScreen;}
 };

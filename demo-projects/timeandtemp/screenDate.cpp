@@ -28,7 +28,7 @@ void ScreenDate::Render(const Adafruit_SSD1306* display, const Context* context)
   x = y = 10;
   drawText_P(display, PSTR("Date"), 1, x, y, left, false);
 
-  DateTime dateTime = context->GetCurrentDateTime();
+  DateTime dateTime = context->GetDateTime();
   //display date
   char data2[17];
   sprintf_P(data2, PSTR("%S %02d/%02d\n%d"), daysOfTheWeek[dateTime.dayOfTheWeek()], dateTime.month() ,dateTime.day(), dateTime.year());

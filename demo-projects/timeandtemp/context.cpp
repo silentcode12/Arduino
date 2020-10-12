@@ -51,7 +51,7 @@ void Context::RefreshData()
   UpdateEma(altitude, bme280->readFloatAltitudeFeet());
 }
 
-DateTime Context::GetCurrentDateTime()
+DateTime Context::GetDateTime()
 {
   return dateTime;
 }
@@ -138,9 +138,7 @@ EMA Context::GetTemperature()
   return temperature;
 }
 
-bool Context::IsLeapYear(short year)
+const Screen* Context::GetCurrentScreen()
 {
-    return ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) ?
-      true :
-      false;
+	return currentScreen;
 }

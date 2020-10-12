@@ -17,7 +17,9 @@ void ScreenTemp::ProcessUpdateAction(const Context* context)
    context->GotoRhScreen();
 }
 
-void ScreenTemp::OnShow(const Context* context){}
+void ScreenTemp::OnShow(const Context* context)
+{
+}
 
 void ScreenTemp::Render(const Adafruit_SSD1306* display, const Context* context)
 {
