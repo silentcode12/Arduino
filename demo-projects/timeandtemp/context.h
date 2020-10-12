@@ -12,9 +12,10 @@ class Screen;
 
 class Context
 {
-  public:
-  Context(const RTC_DS3231& rtc, const BME280& bme280, const Adafruit_SSD1306& display, const void (*playAnimationCallback)());
-  
+	public:
+		Context(const RTC_DS3231& rtc, const BME280& bme280, const Adafruit_SSD1306& display, const void (*playAnimationCallback)());
+		~Context();
+		
   private:
     RTC_DS3231* rtc;
     BME280* bme280;
@@ -55,7 +56,4 @@ class Context
 	//Settings methods
     SETTINGS GetSettings();
     void SetSettings(SETTINGS settings);
-	
-    Context();
-    ~Context();
 };
