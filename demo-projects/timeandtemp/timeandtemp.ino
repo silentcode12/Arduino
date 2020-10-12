@@ -16,7 +16,6 @@ byte buttonState = 1;
 bool buttonUp = true;
 bool longPress = false;
 float last = 0;
-//volatile DateTime dateTime;
 
 //I2C devices
 Adafruit_SSD1306 display(OLED_RESET);
@@ -119,8 +118,6 @@ void UpdateImmediate()
   pin3ISR();
   interrupts();
 }
-
-
 
 void loop () 
 {
