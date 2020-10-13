@@ -58,6 +58,10 @@ EMA button {0.5, 1};
 
 void setup () 
 {
+  //Setup input pins
+  pinMode(RTC_SQW_PIN, INPUT);         //Square wave from rtc
+  pinMode(BUTTON_PIN, INPUT_PULLUP);  //Button pin
+  
   //Configure the RTC
   rtc.begin();
   rtc.writeSqwPinMode(Ds3231SqwPinMode::DS3231_SquareWave1Hz);
@@ -75,10 +79,6 @@ void setup ()
   bme280.settings.pressOverSample = 1;
   bme280.settings.humidOverSample = 1;
   bme280.begin();
-
-  //Setup input pins
-  pinMode(RTC_SQW_PIN, INPUT);         //Square wave from rtc
-  pinMode(BUTTON_PIN, INPUT_PULLUP);  //Button pin
 
   //Configure the context
   context.Begin();
