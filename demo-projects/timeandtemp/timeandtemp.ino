@@ -124,7 +124,7 @@ void loop ()
 
   if ((byte)button.s != 0 && (byte)button.s != 1)
   {
-    //button in transition
+    //The button is transitioning between states
     return;
   }
 
@@ -146,11 +146,13 @@ void loop ()
     buttonState = (bool)button.s;
   }
 
-  if (buttonUp == false)
+  if (!buttonUp)
   {
+      //Button is still being pressed, check for how long it has been pressed and trigger the long press begin
       float now = millis();
       if (now - last > 2000 && !isLongPress)
       {
+        //Button has been pressed for greater than threshold and this is the first time it was detected
         isLongPress = true; 
         LongPressBegin();
         UpdateImmediate();
