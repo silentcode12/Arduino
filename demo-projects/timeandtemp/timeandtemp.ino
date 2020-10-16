@@ -12,7 +12,6 @@
 
 //Variables
 byte buttonState = 1;
-bool buttonUp = true;
 bool isLongPress = false;
 float last = 0;
 
@@ -135,18 +134,16 @@ void loop ()
       ButtonUp();
       UpdateImmediate();
       isLongPress = false;
-      buttonUp = true;
     }
     else
     {
-      buttonUp = false;
       last = millis();
     }
 
     buttonState = (bool)button.s;
   }
 
-  if (!buttonUp)
+  if (buttonState != 1) //button is down
   {
       //Button is still being pressed, check for how long it has been pressed and trigger the long press begin
       float now = millis();
