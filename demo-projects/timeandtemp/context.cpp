@@ -13,6 +13,7 @@
 #include "screenTimeEdit.h"
 #include "screenTemp.h"
 #include "screenRh.h"
+#include "screenSettings.h"
 
 //EEPROM memory mappings
 SETTINGS settings EEMEM = {false, false}; //todo:  Figure out how to initialize eeprom memory at flash time.  looks like a separate binary file...
@@ -63,48 +64,43 @@ void Context::SetDateTime(DateTime& newDateTime)
 
 void Context::GotoDateScreen()
 {
-  delete currentScreen;
-  currentScreen = new ScreenDate();
-  playAnimationCallback();
-  currentScreen->OnShow(this);
+  SwapScreen(new ScreenDate());
 }
 
 void Context::GotoTimeScreen()
 {
-  delete currentScreen;
-  currentScreen = new ScreenTime();
-  playAnimationCallback();
-  currentScreen->OnShow(this);
+  SwapScreen(new ScreenTime());
 }
 
 void Context::GotoTimeEditScreen()
 {
-  delete currentScreen;
-  currentScreen = new ScreenTimeEdit();
-  playAnimationCallback();
-  currentScreen->OnShow(this);
+  SwapScreen(new ScreenTimeEdit());
 }
 
 void Context::GotoTempScreen()
 {
-  delete currentScreen;
-  currentScreen = new ScreenTemp();
-  playAnimationCallback();
-  currentScreen->OnShow(this);
+  SwapScreen(new ScreenTemp());
 }
 
 void Context::GotoRhScreen()
 {
-  delete currentScreen;
-  currentScreen = new ScreenRh();
-  playAnimationCallback();
-  currentScreen->OnShow(this);
+  SwapScreen(new ScreenRh());
 }
 
 void Context::GotoDateEditScreen()
 {
+  SwapScreen(new ScreenDateEdit());
+}
+
+void Context::GotoSettingsScreen()
+{
+  SwapScreen(new ScreenSettings());
+}
+
+void Context::SwapScreen(const Screen* newScreen)
+{
   delete currentScreen;
-  currentScreen = new ScreenDateEdit();
+  currentScreen = newScreen;
   playAnimationCallback();
   currentScreen->OnShow(this);
 }
@@ -150,5 +146,7 @@ void Context::CommitInput()
 
 void Context::RefreshDisplay()
 {
+  display->clearDisplay();
   currentScreen->Render(display, this);
+  display->display();
 }

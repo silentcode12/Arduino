@@ -23,10 +23,9 @@ void ScreenTime::OnShow(const Context* context)
 
 void ScreenTime::Render(const Adafruit_SSD1306* display, const Context* context)
 {
-  display->clearDisplay();
   int x, y;
   x = y = 10;
-  drawText_P(display, PSTR("Time"), 1, x, y, left, false); y += 20;
+  //drawText_P(display, PSTR("Time"), 1, x, y, left, false); y += 20;
   char data[20];
 
   DateTime dateTime = context->GetDateTime();
@@ -44,6 +43,4 @@ void ScreenTime::Render(const Adafruit_SSD1306* display, const Context* context)
   x = 64;
   y = 40;
   drawText(display, data, 3, x, y, center, false);
-
-  display->display();
 }

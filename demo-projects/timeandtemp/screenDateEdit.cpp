@@ -115,11 +115,9 @@ void ScreenDateEdit::ProcessUpdateAction(const Context* context)
 
 void ScreenDateEdit::Render(const Adafruit_SSD1306* display, const Context* context)
 {
-  display->clearDisplay();
-  
   int x, y;
   x = y = 10;
-  drawText_P(display, PSTR("Edit date"), 1, x, y, left, false);
+  //drawText_P(display, PSTR("Edit date"), 1, x, y, left, false);
   
   int year = date[0];
   byte month = date[1];
@@ -167,8 +165,6 @@ void ScreenDateEdit::Render(const Adafruit_SSD1306* display, const Context* cont
 
     drawText(display, data, 1, x, y, left, false);
   }
-
-  display->display();
 }
 
 bool ScreenDateEdit::IsLeapYear(short year)

@@ -72,10 +72,9 @@ void ScreenTimeEdit::ProcessUpdateAction(const Context* context)
 
 void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* context)
 {
-  display->clearDisplay();
   int x, y;
   x = y = 10;
-  drawText_P(display, PSTR("Edit time"), 1, x, y, left, false);
+ // drawText_P(display, PSTR("Edit time"), 1, x, y, left, false);
   y += 20;
 
   if (timeIndex == -1)
@@ -111,6 +110,4 @@ void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* cont
       display->drawLine(x, y, x1, y, 1);
     }
   }
-  
-  display->display();
 }

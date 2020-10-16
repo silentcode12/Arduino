@@ -32,6 +32,8 @@ class Context
     DateTime dateTime;
 
     void (*playAnimationCallback)();
+
+    void Context::SwapScreen(const Screen* newScreen);
     
   public:
     void RefreshData();
@@ -55,6 +57,7 @@ class Context
     void GotoDateEditScreen();
     void GotoRhScreen();
     void GotoTempScreen();
+    void Context::GotoSettingsScreen();
 	
 	  //Settings methods
     SETTINGS GetSettings();
