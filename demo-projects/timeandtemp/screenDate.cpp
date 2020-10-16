@@ -9,7 +9,7 @@
 
 void ScreenDate::ProcessCommitAction(const Context* context)
 {
- 
+  context->GotoDateEditScreen();
 }
 
 void ScreenDate::ProcessUpdateAction(const Context* context)

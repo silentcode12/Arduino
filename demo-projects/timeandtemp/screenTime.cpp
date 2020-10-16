@@ -9,7 +9,7 @@
 
 void ScreenTime::ProcessCommitAction(const Context* context)
 {
-  
+  context->GotoTimeEditScreen();
 }
 
 void ScreenTime::ProcessUpdateAction(const Context* context)
