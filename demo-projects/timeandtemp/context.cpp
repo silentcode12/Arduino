@@ -56,6 +56,11 @@ DateTime Context::GetDateTime()
   return dateTime;
 }
 
+void Context::SetDateTime(DateTime& newDateTime)
+{
+  rtc->adjust(newDateTime);
+}
+
 void Context::GotoDateScreen()
 {
   delete currentScreen;
@@ -102,11 +107,6 @@ void Context::GotoDateEditScreen()
   currentScreen = new ScreenDateEdit();
   playAnimationCallback();
   currentScreen->OnShow(this);
-}
-
-void Context::SetDateTime(DateTime& newDateTime)
-{
-  rtc->adjust(newDateTime);
 }
 
 SETTINGS Context::GetSettings()
