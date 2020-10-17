@@ -41,11 +41,7 @@ void ScreenTimeEdit::ProcessUpdateAction(const Context* context)
   switch(timeIndex)
     {
       case -1:
-        SETTINGS s;
-        s = context->GetSettings();
-        s.is24hr = !s.is24hr;
-        //settings = s;
-        context->SetSettings(s);
+        context->SetIs24Hour(!context->Is24Hour());
         return;
       case 0: 
         if (hour >= 23)
@@ -77,12 +73,12 @@ void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* cont
     //Display the clock mode (12hr/24hr) setting first
     x = 64;
     y = 32;
-    drawText_P(display, context->GetSettings().is24hr ? PSTR("24hr") : PSTR("12hr"), 2, x, y, center, false);
+    drawText_P(display, context->Is24Hour() ? PSTR("24hr") : PSTR("12hr"), 2, x, y, center, false);
   }
   else
   {
     char data[10];
-    if (context->GetSettings().is24hr)
+    if (context->Is24Hour())
       sprintf_P(data, PSTR("%02d:%02d:%02d"), hour, minute, second);
     else
       sprintf_P(data, PSTR("%02d:%02d:%02d %S"), hour > 12 ? hour - 12 : hour, minute, second, hour > 11 ? PSTR("P") : PSTR("A"));

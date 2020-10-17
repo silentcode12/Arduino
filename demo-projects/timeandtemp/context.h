@@ -1,15 +1,5 @@
 #include "ema.h"
 
-typedef struct _SETTINGS
-{
-  bool is24hr;
-  bool isMetric;
-}SETTINGS;
-
-#define TEMP_CORRECTION -10.0
-
-const char daysOfTheWeek[7][4] PROGMEM = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};  //Stored in flash, read out using sprintf_P with %S
-
 class Screen;
 
 class Context
@@ -22,6 +12,8 @@ class Context
     RTC_DS3231* rtc;
     BME280* bme280;
     Adafruit_SSD1306* display;
+
+    DateTime dateTime;
     
     Screen* currentScreen;
     
@@ -30,8 +22,6 @@ class Context
     Ema temperature;
     Ema altitude;
     Ema pressure;
-
-    DateTime dateTime;
 
     void (*playAnimationCallback)();
 
@@ -65,6 +55,9 @@ class Context
     void GotoSettingsScreen();
 	
 	  //Settings methods
-    SETTINGS GetSettings();
-    void SetSettings(SETTINGS settings);
+    //bool IsMetric();
+    //void SetIsMetric(bool value);
+
+    bool Is24Hour();
+    void SetIs24Hour(bool value);
 };

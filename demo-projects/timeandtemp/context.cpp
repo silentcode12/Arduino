@@ -15,8 +15,18 @@
 #include "screenRh.h"
 #include "screenSettings.h"
 
+typedef struct _SETTINGS
+{
+  bool is24hr;
+  bool isMetric;
+}SETTINGS;
+
 //EEPROM memory mappings
 SETTINGS settings EEMEM = {false, false}; //todo:  Figure out how to initialize eeprom memory at flash time.  looks like a separate binary file...
+
+#define TEMP_CORRECTION -10.0
+
+const char daysOfTheWeek[7][4] PROGMEM = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};  //Stored in flash, read out using sprintf_P with %S
 
 Context::Context(const RTC_DS3231* rtc, const BME280* bme280, const Adafruit_SSD1306* display, const void (*playAnimationCallback)()) : 
 percentRH (0.1, 0),
@@ -33,13 +43,12 @@ pressure (0.1, 0)
 
 void Context::Begin()
 {
+  dateTime = rtc->now();
   //Prime the first value to avoid initial homing of average from zero.
   percentRH.Reset(bme280->readFloatHumidity());
   temperature.Reset(bme280->readTempF() + TEMP_CORRECTION);
   altitude.Reset(bme280->readFloatAltitudeFeet());
   pressure.Reset(bme280->readFloatPressure());
-
-  dateTime = rtc->now();
 }
 
 Context::~Context()
@@ -65,7 +74,6 @@ void Context::GetDate(short& year, short& month, short& day)
 
 void Context::SetDate(const short& year, const short& month, const short& day)
 {
-  dateTime = rtc->now();
   rtc->adjust(DateTime(year, month, day, dateTime.hour(), dateTime.minute(), dateTime.second()));
 }
 
@@ -78,7 +86,6 @@ void Context::GetTime(short& hour, short& minute, short& second)
 
 void Context::SetTime(const short& hour, const short& minute, const short& second)
 {
-  dateTime = rtc->now();
   rtc->adjust(DateTime(dateTime.year(), dateTime.month(), dateTime.day(), hour, minute, second));
 }
 
@@ -130,23 +137,24 @@ void Context::SwapScreen(const Screen* newScreen)
   currentScreen->OnShow(this);
 }
 
-SETTINGS Context::GetSettings()
+bool Context::Is24Hour()
 {
   SETTINGS s;
   EEPROM.get((int)&settings, s);
   if (s.is24hr != 0 && s.is24hr != 1)
   {
-    //EEPROM isn't initialized, do it now.
-    s.is24hr = false;
-    EEPROM.put((int)&settings, s);
+    return true;
   }
   
-  return s;
+  return s.is24hr;
 }
 
-void Context::SetSettings(SETTINGS newSettings)
+void Context::SetIs24Hour(bool value)
 {
-  EEPROM.put((int)&settings, newSettings);
+  SETTINGS s;
+  EEPROM.get((int)&settings, s);
+  s.is24hr = value;
+  EEPROM.put((int)&settings, s);
 }
 
 float Context::GetPercentRh()
