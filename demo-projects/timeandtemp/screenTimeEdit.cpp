@@ -72,10 +72,9 @@ void ScreenTimeEdit::ProcessUpdateAction(const Context* context)
 
 void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* context)
 {
-  display->clearDisplay();
   int x, y;
   x = y = 10;
-  drawText_P(display, PSTR("Edit time"), 1, x, y, left, false);
+ // drawText_P(display, PSTR("Edit time"), 1, x, y, left, false);
   y += 20;
 
   if (timeIndex == -1)
@@ -95,10 +94,9 @@ void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* cont
       
     drawText(display, data, 2, x, y, left, false);
 
-    //Draw a selection line under the active field.  Use to two digit string for width.
+    //Draw a selection line under the active field.
     int w, h;
-    //display.setTextSize(1);
-   // display.getTextBounds(PSTR("00"), 0, 0, &x, &y, &w, &h);
+
     w = 24;
     y = 45;
   
@@ -111,6 +109,4 @@ void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* cont
       display->drawLine(x, y, x1, y, 1);
     }
   }
-  
-  display->display();
 }

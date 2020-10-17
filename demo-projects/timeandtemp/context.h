@@ -32,6 +32,8 @@ class Context
     DateTime dateTime;
 
     void (*playAnimationCallback)();
+
+    void SwapScreen(const Screen* newScreen);
     
   public:
     void RefreshData();
@@ -44,9 +46,9 @@ class Context
     DateTime GetDateTime();
     void SetDateTime(DateTime& newDateTime);
 	
-	  EMA GetPercentRh();
+	  float GetPercentRh();
 	
-    EMA GetTemperature();
+    float GetTemperature();
     
 	  //Navigation methods
     void GotoDateScreen();
@@ -55,6 +57,7 @@ class Context
     void GotoDateEditScreen();
     void GotoRhScreen();
     void GotoTempScreen();
+    void GotoSettingsScreen();
 	
 	  //Settings methods
     SETTINGS GetSettings();
