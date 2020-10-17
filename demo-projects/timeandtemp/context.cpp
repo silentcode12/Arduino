@@ -124,14 +124,14 @@ void Context::SetSettings(SETTINGS newSettings)
   EEPROM.put((int)&settings, newSettings);
 }
 
-EMA Context::GetPercentRh()
+float Context::GetPercentRh()
 {
-  return percentRH;
+  return percentRH.s;
 }
 
-EMA Context::GetTemperature()
+float Context::GetTemperature()
 {
-  return temperature;
+  return temperature.s;
 }
 
 void Context::UpdateInput()

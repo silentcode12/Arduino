@@ -19,7 +19,7 @@ void ScreenTemp::Render(const Adafruit_SSD1306* display, const Context* context)
   
   //display temp
   char data[10];
-  dtostrf(context->GetTemperature().s, 3, 1, data);
+  dtostrf(context->GetTemperature(), 3, 1, data);
   sprintf_P(data, PSTR("%s F"), data);
 
   x = 64;
