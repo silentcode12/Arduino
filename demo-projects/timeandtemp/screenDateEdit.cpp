@@ -12,7 +12,6 @@ ScreenDateEdit::ScreenDateEdit()
   dateIndex = 0;
 }
 
-
 void ScreenDateEdit::OnShow(const Context* context)
 {
   DateTime dateTime = context->GetDateTime();
@@ -116,55 +115,51 @@ void ScreenDateEdit::ProcessUpdateAction(const Context* context)
 void ScreenDateEdit::Render(const Adafruit_SSD1306* display, const Context* context)
 {
   int x, y;
-  x = y = 10;
-  //drawText_P(display, PSTR("Edit date"), 1, x, y, left, false);
-  
+   
   int year = date[0];
   byte month = date[1];
   byte day = date[2];
 
-  y += 10;
+  x = 0;
+  y = 0;
   char data[6];
   if(dateIndex <= 3)
   {
     //set year
-    drawText_P(display, PSTR("Edit year"), 1, x, y, left, false);
-    y += 10;
+    drawText_P(display, PSTR("Year"), 1, x, y, left, false);
 
-    sprintf_P(data, PSTR("%d"), year);
-
-    drawText(display, data, 1, x, y, left, false);
-    int w = 4;
-    for(y=45; y <48; y ++)
+    //draw indicator column marker
+    int w = 12;
+    for(y=50; y <53; y ++)
     {
-      x = 10;
+      x = 30;
       x = x 
       + (dateIndex * w) //numeric digits width
       + (dateIndex * w / 2);  //divider width
       int x1 = x + w;  // underline the two digits
       display->drawLine(x, y, x1, y, 1);
     }
+
+    sprintf_P(data, PSTR("%d"), year);
   }
   else if (dateIndex == 4)
   {
     //set month
-    drawText_P(display, PSTR("Edit month"), 1, x, y, left, false);
-    y += 10;
+    drawText_P(display, PSTR("Month"), 1, x, y, left, false);
 
-     sprintf_P(data, PSTR("%d"), month);
-
-    drawText(display, data, 1, x, y, left, false);
+    sprintf_P(data, PSTR("%d"), month);
   }
   else if (dateIndex == 5)
   {
     //set day
-    drawText_P(display, PSTR("Edit day"), 1, x, y, left, false);
-    y += 10;
+    drawText_P(display, PSTR("Day"), 1, x, y, left, false);
 
     sprintf_P(data, PSTR("%d"), day);
-
-    drawText(display, data, 1, x, y, left, false);
   }
+
+  y = 32;
+  x = 64;  
+  drawText(display, data, 3, x, y, center, false);
 }
 
 bool ScreenDateEdit::IsLeapYear(short year)

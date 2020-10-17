@@ -94,10 +94,9 @@ void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* cont
       
     drawText(display, data, 2, x, y, left, false);
 
-    //Draw a selection line under the active field.  Use to two digit string for width.
+    //Draw a selection line under the active field.
     int w, h;
-    //display.setTextSize(1);
-   // display.getTextBounds(PSTR("00"), 0, 0, &x, &y, &w, &h);
+
     w = 24;
     y = 45;
   
