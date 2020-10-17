@@ -7,27 +7,16 @@
 #include "screen.h"
 #include "screenTemp.h"
 
-void ScreenTemp::ProcessCommitAction(const Context* context)
-{
-   
-}
-
 void ScreenTemp::ProcessUpdateAction(const Context* context)
 {
    context->GotoRhScreen();
-}
-
-void ScreenTemp::OnShow(const Context* context)
-{
-
 }
 
 void ScreenTemp::Render(const Adafruit_SSD1306* display, const Context* context)
 {
   int x, y;
   x = y = 10;
-  //drawText_P(display, PSTR("Temp"), 1, x, y, left, false);
-
+  
   //display temp
   char data[10];
   dtostrf(context->GetTemperature().s, 3, 1, data);

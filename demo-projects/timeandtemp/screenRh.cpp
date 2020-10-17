@@ -7,18 +7,10 @@
 #include "screen.h"
 #include "screenRh.h"
 
-void ScreenRh::ProcessCommitAction(const Context* context)
-{
-   context->GotoSettingsScreen();
-}
-
 void ScreenRh::ProcessUpdateAction(const Context* context)
 {
  context->GotoTimeScreen();
 }
-
-void ScreenRh::OnShow(const Context* context)
-{}
 
 void ScreenRh::Render(const Adafruit_SSD1306* display, const Context* context)
 {

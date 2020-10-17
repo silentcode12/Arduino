@@ -7,18 +7,9 @@
 #include "screen.h"
 #include "screenTime.h"
 
-void ScreenTime::ProcessCommitAction(const Context* context)
-{
-  context->GotoTimeEditScreen();
-}
-
 void ScreenTime::ProcessUpdateAction(const Context* context)
 {
    context->GotoDateScreen();
-}
-
-void ScreenTime::OnShow(const Context* context)
-{
 }
 
 void ScreenTime::Render(const Adafruit_SSD1306* display, const Context* context)
