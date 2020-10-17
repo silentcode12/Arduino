@@ -2,7 +2,6 @@
 #include "Adafruit_GFX.h"
 #include <Adafruit_SSD1306.h>
 #include <SparkFunBME280.h>
-#include <SparkFunBME280.h>
 #include <RTClib.h>
 #include "context.h"
 #include "screen.h"
@@ -13,14 +12,10 @@ ScreenTimeEdit::ScreenTimeEdit()
   timeIndex = 0;
 }
 
-
 void ScreenTimeEdit::OnShow(const Context* context)
 {
-  DateTime dateTime = context->GetDateTime();
+  context->GetTime(hour, minute, second);
   timeIndex = -1;
-  time[0] = dateTime.hour();
-  time[1] = dateTime.minute();
-  time[2] = dateTime.second();
 }
 
 void ScreenTimeEdit::ProcessCommitAction(const Context* context)
@@ -34,9 +29,7 @@ void ScreenTimeEdit::ProcessCommitAction(const Context* context)
     case 2: break;
     default: 
     {
-      DateTime dateTime = context->GetDateTime();
-      DateTime newDateTime(dateTime.year(), dateTime.month(), dateTime.day(), time[0], time[1], time[2]);
-      context->SetDateTime(dateTime);
+      context->SetTime(hour, minute, second);
       context->GotoTimeScreen();
       break;
     }
@@ -55,19 +48,21 @@ void ScreenTimeEdit::ProcessUpdateAction(const Context* context)
         context->SetSettings(s);
         return;
       case 0: 
-        if (time[0] >= 23)
-          time[0] = 0;
+        if (hour >= 23)
+          hour = 0;
+
+        hour++;
         break;
       case 1: 
-        if(time[1] >= 59)
-          time[1] = -1;
+        if(minute >= 59)
+          minute = -1;
+
+        minute++;
         break;
       case 2:
-        time[2] = 0; //Note:  reset seconds to zero for synchronization, will count up
+        second = 0; //Note:  reset seconds to zero for synchronization, will count up
         return;
     }
-    
-    time[timeIndex]++;
 }
 
 void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* context)
@@ -88,9 +83,9 @@ void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* cont
   {
     char data[10];
     if (context->GetSettings().is24hr)
-      sprintf_P(data, PSTR("%02d:%02d:%02d"), time[0], time[1], time[2]);
+      sprintf_P(data, PSTR("%02d:%02d:%02d"), hour, minute, second);
     else
-      sprintf_P(data, PSTR("%02d:%02d:%02d %S"), time[0] > 12 ? time[0] - 12 : time[0], time[1], time[2], time[0] > 11 ? PSTR("P") : PSTR("A"));
+      sprintf_P(data, PSTR("%02d:%02d:%02d %S"), hour > 12 ? hour - 12 : hour, minute, second, hour > 11 ? PSTR("P") : PSTR("A"));
       
     drawText(display, data, 2, x, y, left, false);
 

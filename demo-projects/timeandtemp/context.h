@@ -1,3 +1,5 @@
+#include "ema.h"
+
 typedef struct _SETTINGS
 {
   bool is24hr;
@@ -24,10 +26,10 @@ class Context
     Screen* currentScreen;
     
     //BME280 readings
-    EMA percentRH {0.1, 0};
-    EMA temperature {0.9, 0};
-    EMA altitude {0.1, 0};
-    EMA pressure {0.1, 0};
+    Ema percentRH;
+    Ema temperature;
+    Ema altitude;
+    Ema pressure;
 
     DateTime dateTime;
 
@@ -43,9 +45,12 @@ class Context
     void RefreshDisplay();
 
 	  //Data methods
-    DateTime GetDateTime();
-    void SetDateTime(DateTime& newDateTime);
-	
+    void GetDate(short& year, short& month, short& day);
+    void SetDate(const short& year, const short& month, const short& day);
+    void GetTime(short& hour, short& minute, short& second);
+    void SetTime(const short& hour, const short& minute, const short& second);
+    const char* GetDayOfWeek();
+
 	  float GetPercentRh();
 	
     float GetTemperature();

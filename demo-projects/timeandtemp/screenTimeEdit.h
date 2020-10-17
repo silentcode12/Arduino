@@ -1,7 +1,9 @@
 class ScreenTimeEdit : public Screen
 {
  private:
-    short time[3] = {0, 0, 0};
+    short hour;
+    short minute;
+    short second;
     int timeIndex;
  public:
     ScreenTimeEdit();

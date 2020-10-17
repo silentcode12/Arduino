@@ -3,6 +3,7 @@
 #include <RTClib.h>
 #include <SparkFunBME280.h>
 #include "context.h"
+//#include "ema.h"
 
 //Constants
 #define OLED_RESET 4
@@ -53,7 +54,7 @@ void playAnimation()
 
 Context context(&rtc, &bme280, &display, &playAnimation);
 
-EMA button {0.5, 1};
+Ema button(0.5, 1);
 
 void setup () 
 {
@@ -103,13 +104,6 @@ void pin3ISR()
   IsRunning = false;
 }
 
-//Exponential Moving Average
-//https://www.norwegiancreations.com/2015/10/tutorial-potentiometers-with-arduino-and-filtering/
-void UpdateEma(EMA& ema, float sample)
-{
-  ema.s = (ema.a * sample) + ((1-ema.a)*ema.s);    //run the EMA
-}
-
 void UpdateImmediate()
 {
   noInterrupts();
@@ -119,17 +113,18 @@ void UpdateImmediate()
 
 void loop () 
 {
-  UpdateEma(button, digitalRead(BUTTON_PIN));
+  button.AddSample(digitalRead(BUTTON_PIN));
+  byte s = (byte)button.GetValue();
 
-  if ((byte)button.s != 0 && (byte)button.s != 1)
+  if (s != 0 && s != 1)
   {
     //The button is transitioning between states
     return;
   }
 
-  if (buttonState != (byte)button.s)
+  if (buttonState != s)
   {
-    if (button.s == 1)
+    if (s == 1)
     {
       ButtonUp();
       UpdateImmediate();
@@ -140,7 +135,7 @@ void loop ()
       last = millis();
     }
 
-    buttonState = (bool)button.s;
+    buttonState = s;
   }
 
   if (buttonState != 1) //button is down

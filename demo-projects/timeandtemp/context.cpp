@@ -18,7 +18,11 @@
 //EEPROM memory mappings
 SETTINGS settings EEMEM = {false, false}; //todo:  Figure out how to initialize eeprom memory at flash time.  looks like a separate binary file...
 
-Context::Context(const RTC_DS3231* rtc, const BME280* bme280, const Adafruit_SSD1306* display, const void (*playAnimationCallback)())
+Context::Context(const RTC_DS3231* rtc, const BME280* bme280, const Adafruit_SSD1306* display, const void (*playAnimationCallback)()) : 
+percentRH (0.1, 0),
+temperature (0.9, 0),
+altitude (0.1, 0),
+pressure (0.1, 0)
 {
   this->rtc = rtc;
   this->bme280 = bme280;
@@ -30,10 +34,10 @@ Context::Context(const RTC_DS3231* rtc, const BME280* bme280, const Adafruit_SSD
 void Context::Begin()
 {
   //Prime the first value to avoid initial homing of average from zero.
-  percentRH.s = bme280->readFloatHumidity();
-  temperature.s = bme280->readTempF() + TEMP_CORRECTION;
-  altitude.s = bme280->readFloatAltitudeFeet();
-  pressure.s = bme280->readFloatPressure();
+  percentRH.Reset(bme280->readFloatHumidity());
+  temperature.Reset(bme280->readTempF() + TEMP_CORRECTION);
+  altitude.Reset(bme280->readFloatAltitudeFeet());
+  pressure.Reset(bme280->readFloatPressure());
 
   dateTime = rtc->now();
 }
@@ -46,20 +50,41 @@ Context::~Context()
 void Context::RefreshData()
 {
   dateTime = rtc->now();
-  UpdateEma(temperature, bme280->readTempF() + TEMP_CORRECTION);
-  UpdateEma(percentRH, bme280->readFloatHumidity());
-  UpdateEma(pressure, bme280->readFloatPressure());
-  UpdateEma(altitude, bme280->readFloatAltitudeFeet());
+  temperature.AddSample(bme280->readTempF() + TEMP_CORRECTION);
+  percentRH.AddSample(bme280->readFloatHumidity());
+  pressure.AddSample(bme280->readFloatPressure());
+  altitude.AddSample(bme280->readFloatAltitudeFeet());
 }
 
-DateTime Context::GetDateTime()
+void Context::GetDate(short& year, short& month, short& day)
 {
-  return dateTime;
+  year = dateTime.year();
+  month = dateTime.month();
+  day = dateTime.day();
 }
 
-void Context::SetDateTime(DateTime& newDateTime)
+void Context::SetDate(const short& year, const short& month, const short& day)
 {
-  rtc->adjust(newDateTime);
+  dateTime = rtc->now();
+  rtc->adjust(DateTime(year, month, day, dateTime.hour(), dateTime.minute(), dateTime.second()));
+}
+
+void Context::GetTime(short& hour, short& minute, short& second)
+{
+  hour = dateTime.hour();
+  minute = dateTime.minute();
+  second = dateTime.second();
+}
+
+void Context::SetTime(const short& hour, const short& minute, const short& second)
+{
+  dateTime = rtc->now();
+  rtc->adjust(DateTime(dateTime.year(), dateTime.month(), dateTime.day(), hour, minute, second));
+}
+
+const char* Context::GetDayOfWeek()
+{
+  return daysOfTheWeek[dateTime.dayOfTheWeek()];
 }
 
 void Context::GotoDateScreen()
@@ -126,12 +151,12 @@ void Context::SetSettings(SETTINGS newSettings)
 
 float Context::GetPercentRh()
 {
-  return percentRH.s;
+  return percentRH.GetValue();
 }
 
 float Context::GetTemperature()
 {
-  return temperature.s;
+  return temperature.GetValue();
 }
 
 void Context::UpdateInput()

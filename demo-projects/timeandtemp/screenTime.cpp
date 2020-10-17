@@ -2,7 +2,7 @@
 #include "Adafruit_GFX.h"
 #include <Adafruit_SSD1306.h>
 #include <SparkFunBME280.h>
-#include <RTClib.h>
+#include <rtclib.h>
 #include "context.h"
 #include "screen.h"
 #include "screenTime.h"
@@ -18,11 +18,9 @@ void ScreenTime::Render(const Adafruit_SSD1306* display, const Context* context)
   x = y = 10;
   //drawText_P(display, PSTR("Time"), 1, x, y, left, false); y += 20;
   char data[20];
-
-  DateTime dateTime = context->GetDateTime();
-  int hour = dateTime.hour();
-  int minute = dateTime.minute();
-  int second = dateTime.second();
+  
+  short hour, minute, second;
+  context->GetTime(hour, minute, second);
 
   char tick = second % 2 == 1 ? ':' : ' ';
   

@@ -14,12 +14,8 @@ ScreenDateEdit::ScreenDateEdit()
 
 void ScreenDateEdit::OnShow(const Context* context)
 {
-  DateTime dateTime = context->GetDateTime();
+  context->GetDate(year, month, day);
   dateIndex = 0;
-
-  date[0] = dateTime.year();
-  date[1] = dateTime.month();
-  date[2] = dateTime.day();
 }
 
 void ScreenDateEdit::ProcessCommitAction(const Context* context)
@@ -35,10 +31,7 @@ void ScreenDateEdit::ProcessCommitAction(const Context* context)
       case 5: break;
       default: 
       {
-        DateTime dateTime = context->GetDateTime();
-        
-        DateTime newDateTime(date[0], date[1], date[2], dateTime.hour(), dateTime.minute(), dateTime.second());
-        context->SetDateTime(newDateTime);
+        context->SetDate(year, month, day);
         context->GotoDateScreen();
         break;
       }
@@ -48,10 +41,10 @@ void ScreenDateEdit::ProcessCommitAction(const Context* context)
 void ScreenDateEdit::ProcessUpdateAction(const Context* context)
 {
       //Deconstruct the year, Todo: Only do this when updated year parts
-      short thousands = (date[0] % 10000) / 1000;
-      short hundreds = (date[0] % 1000) / 100;
-      short tens = (date[0] % 100) / 10;
-      short ones = date[0] %10;
+      short thousands = (year % 10000) / 1000;
+      short hundreds = (year % 1000) / 100;
+      short tens = (year % 100) / 10;
+      short ones = year %10;
     
       switch (dateIndex)
       {
@@ -80,16 +73,16 @@ void ScreenDateEdit::ProcessUpdateAction(const Context* context)
 
           break;//update 1s
         case 4:
-          date[1] += 1;
-          if (date[1] > 12)
-            date[1] = 1;
+          month += 1;
+          if (month > 12)
+            month = 1;
           break;//update month
         case 5:
           byte max = 0;
-          switch(date[1])
+          switch(month)
           {
             case 2:
-              max = IsLeapYear(date[0]) ? 29 : 28;
+              max = IsLeapYear(year) ? 29 : 28;
               break;
             case 4:
             case 6:
@@ -102,23 +95,19 @@ void ScreenDateEdit::ProcessUpdateAction(const Context* context)
               break;
           }
           
-          date[2] += 1;
-          if (date[2] > max)
-            date[2] = 1;
+          day += 1;
+          if (day > max)
+            day = 1;
           break;//update day
       }
 
       //Reconstruct the year, Todo: Only do this when updated year parts
-      date[0] = thousands * 1000 + hundreds * 100 + tens * 10 + ones;
+      year = thousands * 1000 + hundreds * 100 + tens * 10 + ones;
 }
 
 void ScreenDateEdit::Render(const Adafruit_SSD1306* display, const Context* context)
 {
   int x, y;
-   
-  int year = date[0];
-  byte month = date[1];
-  byte day = date[2];
 
   x = 0;
   y = 0;
