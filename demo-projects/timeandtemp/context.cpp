@@ -72,6 +72,8 @@ void Context::RefreshData()
   {
     currentScreen->ProcessUpdateAction(this);
   }
+
+  currentScreen->Tick();
 }
 
 void Context::GetDate(short& year, byte& month, byte& day)

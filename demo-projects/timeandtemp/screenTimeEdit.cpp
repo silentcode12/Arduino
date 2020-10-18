@@ -16,6 +16,7 @@ ScreenTimeEdit::ScreenTimeEdit()
 void ScreenTimeEdit::OnShow(const Context* context)
 {
   context->GetTime(hour, minute, second);
+  second = 0;
   timeIndex = 0;
 }
 
@@ -24,9 +25,20 @@ bool ScreenTimeEdit::AllowAutoChannelChange()
   return false;
 }
 
+void ScreenTimeEdit::Tick()
+{
+  if (timeIndex == 2)
+  {
+    if (second + 1 > 59)
+      second = 0;
+    else
+      second++;
+  }
+}
+
 void ScreenTimeEdit::ProcessCommitAction(const Context* context)
 {
- timeIndex++;
+  timeIndex++;
   switch (timeIndex)
   {
     case 0: break;

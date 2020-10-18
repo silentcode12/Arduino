@@ -22,6 +22,11 @@ bool Screen::AllowAutoChannelChange()
   return true;
 }
 
+void Screen::Tick()
+{
+  
+}
+
 void Screen::Render(const Adafruit_SSD1306* display, const Context* context){}
 
 void Screen::ProcessUpdateAction(const Context* context){};
