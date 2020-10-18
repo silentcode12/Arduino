@@ -31,8 +31,8 @@ class Context
     void RefreshDisplay();
 
 	  //Data methods
-    void GetDate(short& year, short& month, short& day);
-    void SetDate(const short& year, const short& month, const short& day);
+    void GetDate(short& year, byte& month, byte& day);
+    void SetDate(const short& year, const byte& month, const byte& day);
     void GetTime(byte& hour, byte& minute, byte& second);
     void SetTime(const byte& hour, const byte& minute, const byte& second);
     const char* GetDayOfWeek();

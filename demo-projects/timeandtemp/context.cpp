@@ -74,14 +74,14 @@ void Context::RefreshData()
   }
 }
 
-void Context::GetDate(short& year, short& month, short& day)
+void Context::GetDate(short& year, byte& month, byte& day)
 {
   year = dateTime.year();
-  month = dateTime.month();
-  day = dateTime.day();
+  month = (byte)dateTime.month();
+  day = (byte)dateTime.day();
 }
 
-void Context::SetDate(const short& year, const short& month, const short& day)
+void Context::SetDate(const short& year, const byte& month, const byte& day)
 {
   rtc->adjust(DateTime(year, month, day, dateTime.hour(), dateTime.minute(), dateTime.second()));
 }
