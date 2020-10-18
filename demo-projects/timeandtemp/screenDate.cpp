@@ -8,6 +8,8 @@
 #include "screen.h"
 #include "screenDate.h"
 
+const char monthOfYear[12][4] PROGMEM = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Nov", "Dec"};  //Stored in flash, read out using sprintf_P with %S
+
 void ScreenDate::ProcessUpdateAction(const Context* context)
 {
   context->GotoTempScreen();
@@ -23,8 +25,8 @@ void ScreenDate::Render(const Adafruit_SSD1306* display, const Context* context)
   
   //display date
   char data2[17];
-  sprintf_P(data2, PSTR("%S %02d/%02d\n%d"), context->GetDayOfWeek(), month, day, year);
+  sprintf_P(data2, PSTR("%S %S\n%d %d"), context->GetDayOfWeek(), monthOfYear[month-1], day, year);
   x = 0;
   y = 16;
-  drawText(display, data2, 2, x, y, left, false);
+  drawText(display, data2, 3, x, y, left, false);
 }
