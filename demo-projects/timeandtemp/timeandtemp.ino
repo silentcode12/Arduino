@@ -139,11 +139,11 @@ void loop ()
 
   if (buttonState != 1) //button is down
   {
-      //Button is still being pressed, check for how long it has been pressed and trigger the long press begin
+      //The button is still being pressed, check  how long the button has been pressed.
       float now = millis();
       if (now - last > 2000 && !isLongPress)
       {
-        //Button has been pressed for greater than threshold and this is the first time it was detected
+        //Button has been pressed longer than the threshold, this is the first time it was detected so trigger the long press begin
         isLongPress = true; 
         LongPressBegin();
         UpdateImmediate();
