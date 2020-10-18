@@ -20,7 +20,7 @@ void ScreenTemp::Render(const Adafruit_SSD1306* display, const Context* context)
 
   float temp = context->GetTemperature();
 
-  if (context->IsMetric())
+  if (context->GetIsMetric())
   {
     temp = (temp - 32) * 5.0/9.0;
     dtostrf(temp, 3, 1, data);

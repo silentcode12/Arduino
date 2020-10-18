@@ -52,12 +52,12 @@ class Context2 : Context
     virtual void GotoSettingsScreen() override;
   
     //Settings methods
-    virtual bool IsMetric() override;
+    virtual bool GetIsMetric() override;
     virtual void SetIsMetric(bool value) override;
 
-    virtual bool Is24Hour() override;
+    virtual bool GetIs24Hour() override;
     virtual void SetIs24Hour(bool value) override;
 
-    virtual bool IsAutoChannelChange() override;
+    virtual bool GetIsAutoChannelChange() override;
     virtual void SetIsAutoChannelChange(bool value) override;
 };

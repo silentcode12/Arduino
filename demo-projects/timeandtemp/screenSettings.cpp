@@ -20,13 +20,13 @@ void ScreenSettings::ProcessCommitAction(const Context* context)
       context->GotoDateEditScreen();
       break;
     case 2: //clk
-      context->SetIs24Hour(!context->Is24Hour());
+      context->SetIs24Hour(!context->GetIs24Hour());
       break;
     case 3: //metric
-      context->SetIsMetric(!context->IsMetric());
+      context->SetIsMetric(!context->GetIsMetric());
       break;
     case 4: //Auto channel change
-      context->SetIsAutoChannelChange(!context->IsAutoChannelChange());
+      context->SetIsAutoChannelChange(!context->GetIsAutoChannelChange());
       break;
     default: //exit
       context->GotoTimeScreen();
@@ -70,21 +70,21 @@ void ScreenSettings::Render(const Adafruit_SSD1306* display, const Context* cont
     char data3[10];
     for(int x=0;x<20;x++)
       data3[x]=data2[x];
-    sprintf(data2, data3, context->Is24Hour() ? "24" : "12");
+    sprintf(data2, data3, context->GetIs24Hour() ? "24" : "12");
   }
   else if (current == 3)
   {
     char data3[10];
     for(int x=0;x<20;x++)
       data3[x]=data2[x];
-    sprintf(data2, data3, context->IsMetric() ? "C" : "F");
+    sprintf(data2, data3, context->GetIsMetric() ? "C" : "F");
   }
   else if (current == 4)
   {
     char data3[10];
     for(int x=0;x<20;x++)
       data3[x]=data2[x];
-    sprintf(data2, data3, context->IsAutoChannelChange() ? "on" : "off");
+    sprintf(data2, data3, context->GetIsAutoChannelChange() ? "on" : "off");
   }
   
   int x = 64;

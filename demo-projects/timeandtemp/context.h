@@ -28,12 +28,12 @@ class Context
     virtual void GotoSettingsScreen() = 0;
 	
 	  //Settings methods
-    virtual bool IsMetric() = 0;
+    virtual bool GetIsMetric() = 0;
     virtual void SetIsMetric(bool value) = 0;
 
-    virtual bool Is24Hour() = 0;
+    virtual bool GetIs24Hour() = 0;
     virtual void SetIs24Hour(bool value) = 0;
 
-    virtual bool IsAutoChannelChange() = 0;
+    virtual bool GetIsAutoChannelChange() = 0;
     virtual void SetIsAutoChannelChange(bool value) = 0;
 };

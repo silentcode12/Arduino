@@ -63,7 +63,7 @@ void Context2::RefreshData()
   if (backoff > 0)
     backoff--;
     
-  if (backoff <= 0 && IsAutoChannelChange() && currentScreen->AllowAutoChannelChange() && dateTime.second() % 20 == 0)
+  if (backoff <= 0 && GetIsAutoChannelChange() && currentScreen->AllowAutoChannelChange() && dateTime.second() % 20 == 0)
   {
     currentScreen->ProcessUpdateAction(this);
   }
@@ -162,7 +162,7 @@ bool Context2::GetSetting(byte settingMask)
   return (s & settingMask) == settingMask;
 }
 
-bool Context2::Is24Hour()
+bool Context2::GetIs24Hour()
 { 
   return GetSetting(IS_24HR);
 }
@@ -172,7 +172,7 @@ void Context2::SetIs24Hour(bool value)
   SetSetting(IS_24HR, value);
 }
 
-bool Context2::IsMetric()
+bool Context2::GetIsMetric()
 {
   return GetSetting(IS_METRIC);
 }
@@ -182,7 +182,7 @@ void Context2::SetIsMetric(bool value)
   SetSetting(IS_METRIC, value);
 }
 
-bool Context2::IsAutoChannelChange()
+bool Context2::GetIsAutoChannelChange()
 {
   return GetSetting(IS_ACC);
 }

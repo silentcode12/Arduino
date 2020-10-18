@@ -80,7 +80,7 @@ void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* cont
   y += 20;
 
   char data[10];
-  if (context->Is24Hour())
+  if (context->GetIs24Hour())
     sprintf_P(data, PSTR("%02d:%02d:%02d"), hour, minute, second);
   else
     sprintf_P(data, PSTR("%02d:%02d:%02d %S"), hour > 12 ? hour - 12 : hour, minute, second, hour > 11 ? PSTR("P") : PSTR("A"));
