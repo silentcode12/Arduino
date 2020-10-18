@@ -2,7 +2,6 @@ class ScreenSettings : public Screen
 {
   private:
     int current=0;
-    int count=3;
     
   public:
     void Render(const Adafruit_SSD1306* display, const Context* context) override;

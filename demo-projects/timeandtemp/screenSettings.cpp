@@ -7,20 +7,30 @@
 #include "screen.h"
 #include "screenSettings.h"
 
+#define MENUITEMCOUNT 6
 
-const char menuItems[4][9] PROGMEM = {"Set Time", "Set Date", "Exit"};  //Stored in flash, read out using sprintf_P with %S
+const char menuItems[MENUITEMCOUNT][9] PROGMEM = {"Set Time", "Set Date", "CLK %shr" , "Temp %s", "ACC %s",  "Exit"};  //Stored in flash, read out using sprintf_P with %S
 
 void ScreenSettings::ProcessCommitAction(const Context* context)
 {
    switch(current)
    {
-    case 0:
+    case 0:  //time
       context->GotoTimeEditScreen();
       break;
-    case 1:
+    case 1: //date
       context->GotoDateEditScreen();
       break;
-    case 2:
+    case 2: //clk
+      context->SetIs24Hour(!context->Is24Hour());
+      break;
+    case 3: //metric
+      context->SetIsMetric(!context->IsMetric());
+      break;
+    case 4: //Auto channel change
+      context->SetIsAutoChannelChange(!context->IsAutoChannelChange());
+      break;
+    default: //exit
       context->GotoTimeScreen();
       break;
    }
@@ -29,7 +39,7 @@ void ScreenSettings::ProcessCommitAction(const Context* context)
 void ScreenSettings::ProcessUpdateAction(const Context* context)
 {
     current++;
-    if (current >= count)
+    if (current >= MENUITEMCOUNT)
       current = 0;
 }
 
@@ -49,8 +59,31 @@ void ScreenSettings::Render(const Adafruit_SSD1306* display, const Context* cont
 {
   display->drawRoundRect(x0, y0, w, h, radius, color);
   
-  char data2[9];
+  char data2[10];
   sprintf_P(data2, PSTR("%S"), menuItems[current]);
+
+  if (current == 2)
+  {
+    char data3[10];
+    for(int x=0;x<20;x++)
+      data3[x]=data2[x];
+    sprintf(data2, data3, context->Is24Hour() ? "24" : "12");
+  }
+  else if (current == 3)
+  {
+    char data3[10];
+    for(int x=0;x<20;x++)
+      data3[x]=data2[x];
+    sprintf(data2, data3, context->IsMetric() ? "C" : "F");
+  }
+  else if (current == 4)
+  {
+    char data3[10];
+    for(int x=0;x<20;x++)
+      data3[x]=data2[x];
+    sprintf(data2, data3, context->IsAutoChannelChange() ? "on" : "off");
+  }
+  
   int x = 64;
   int y = 32;
   drawText(display, data2, 2, x, y, center, false);

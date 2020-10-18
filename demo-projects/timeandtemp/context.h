@@ -20,8 +20,8 @@ class Context
     //BME280 readings
     Ema percentRH;
     Ema temperature;
-    Ema altitude;
-    Ema pressure;
+    //Ema altitude;
+    //Ema pressure;
 
     void (*playAnimationCallback)();
 
@@ -55,9 +55,12 @@ class Context
     void GotoSettingsScreen();
 	
 	  //Settings methods
-    //bool IsMetric();
-    //void SetIsMetric(bool value);
+    bool IsMetric();
+    void SetIsMetric(bool value);
 
     bool Is24Hour();
     void SetIs24Hour(bool value);
+
+    bool IsAutoChannelChange();
+    void SetIsAutoChannelChange(bool value);
 };

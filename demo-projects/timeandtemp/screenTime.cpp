@@ -31,5 +31,5 @@ void ScreenTime::Render(const Adafruit_SSD1306* display, const Context* context)
 
   x = 64;
   y = 40;
-  drawText(display, data, 3, x, y, center, false);
+  drawText(display, data, context->Is24Hour() ? 4 : 3, x, y, center, false);
 }
