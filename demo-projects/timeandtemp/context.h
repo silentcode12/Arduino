@@ -1,63 +1,39 @@
-class Screen;
-
 class Context
-{
-	public:
-		Context(const RTC_DS3231* rtc, const BME280* bme280, const Adafruit_SSD1306* display, const void (*playAnimationCallback)());
-		~Context();
-		
-  private:
-    RTC_DS3231* rtc;
-    BME280* bme280;
-    Adafruit_SSD1306* display;
-    Screen* currentScreen;
-    void (*playAnimationCallback)();
-    
-    DateTime dateTime;
-    
-    //BME280 readings
-    Ema percentRH;
-    Ema temperature;
-
-    void SwapScreen(const Screen* newScreen);
-
-    void SetSetting(byte settingMask, bool value);
-    bool GetSetting(byte settingMask);
-    
+{    
   public:
-    void RefreshData();
-    void Begin();
-	  void UpdateInput();
-	  void CommitInput();
-    void RefreshDisplay();
+    virtual void RefreshData() = 0;
+    virtual void Begin() = 0;
+	  virtual void UpdateInput() = 0;
+	  virtual void CommitInput() = 0;
+    virtual void RefreshDisplay() = 0;
 
 	  //Data methods
-    void GetDate(short& year, byte& month, byte& day);
-    void SetDate(const short& year, const byte& month, const byte& day);
-    void GetTime(byte& hour, byte& minute, byte& second);
-    void SetTime(const byte& hour, const byte& minute, const byte& second);
-    const char* GetDayOfWeek();
+    virtual void GetDate(short& year, byte& month, byte& day) = 0;
+    virtual void SetDate(const short& year, const byte& month, const byte& day) = 0;
+    virtual void GetTime(byte& hour, byte& minute, byte& second) = 0;
+    virtual void SetTime(const byte& hour, const byte& minute, const byte& second) = 0;
+    virtual const char* GetDayOfWeek() = 0;
 
-	  float GetPercentRh();
+	  virtual float GetPercentRh() = 0;
 	
-    float GetTemperature();
+    virtual float GetTemperature() = 0;
     
 	  //Navigation methods
-    void GotoDateScreen();
-    void GotoTimeScreen();
-    void GotoTimeEditScreen();
-    void GotoDateEditScreen();
-    void GotoRhScreen();
-    void GotoTempScreen();
-    void GotoSettingsScreen();
+    virtual void GotoDateScreen() = 0;
+    virtual void GotoTimeScreen() = 0;
+    virtual void GotoTimeEditScreen() = 0;
+    virtual void GotoDateEditScreen() = 0;
+    virtual void GotoRhScreen() = 0;
+    virtual void GotoTempScreen() = 0;
+    virtual void GotoSettingsScreen() = 0;
 	
 	  //Settings methods
-    bool IsMetric();
-    void SetIsMetric(bool value);
+    virtual bool IsMetric() = 0;
+    virtual void SetIsMetric(bool value) = 0;
 
-    bool Is24Hour();
-    void SetIs24Hour(bool value);
+    virtual bool Is24Hour() = 0;
+    virtual void SetIs24Hour(bool value) = 0;
 
-    bool IsAutoChannelChange();
-    void SetIsAutoChannelChange(bool value);
+    virtual bool IsAutoChannelChange() = 0;
+    virtual void SetIsAutoChannelChange(bool value) = 0;
 };

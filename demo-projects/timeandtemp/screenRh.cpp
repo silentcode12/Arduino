@@ -1,9 +1,6 @@
 #include "commonTypes.h"
 #include "Adafruit_GFX.h"
 #include <Adafruit_SSD1306.h>
-#include <SparkFunBME280.h>
-#include <RTClib.h>
-#include "ema.h"
 #include "context.h"
 #include "screen.h"
 #include "screenRh.h"
