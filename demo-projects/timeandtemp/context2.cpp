@@ -137,8 +137,9 @@ void Context2::GotoSettingsScreen()
 
 void Context2::SwapScreen(const Screen* newScreen)
 {
-  delete currentScreen;
+  Screen* tobeDeleted = currentScreen;
   currentScreen = newScreen;
+  delete tobeDeleted;
   playAnimationCallback();
   currentScreen->OnShow(this);
 }
