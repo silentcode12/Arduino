@@ -1,11 +1,11 @@
 class ScreenDateEdit : public Screen
 {
   private:
-    int dateIndex;
+    byte dateIndex;
+    bool IsLeapYear(short year);
     short year;
     short month;
     short day;
-	  bool IsLeapYear(short year);
   public:
     ScreenDateEdit();
     void Render(const Adafruit_SSD1306* display, const Context* context) override;

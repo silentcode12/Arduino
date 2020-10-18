@@ -10,18 +10,16 @@ class Context
     RTC_DS3231* rtc;
     BME280* bme280;
     Adafruit_SSD1306* display;
-
-    DateTime dateTime;
-    
     Screen* currentScreen;
+    void (*playAnimationCallback)();
+    
+    DateTime dateTime;
     
     //BME280 readings
     Ema percentRH;
     Ema temperature;
     //Ema altitude;
     //Ema pressure;
-
-    void (*playAnimationCallback)();
 
     void SwapScreen(const Screen* newScreen);
     

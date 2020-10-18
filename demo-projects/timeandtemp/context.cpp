@@ -55,7 +55,7 @@ Context::~Context()
   delete currentScreen;
 }
 
-int backoff = 0;
+byte backoff = 0;
 
 void Context::RefreshData()
 {

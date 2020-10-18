@@ -3,9 +3,9 @@ class Context;
 class Screen 
 {
   public:
-    virtual void Render(const Adafruit_SSD1306* display, const Context* context) = 0;
+    virtual void Render(const Adafruit_SSD1306* display, const Context* context);
     virtual void ProcessCommitAction(const Context* context);
-    virtual void ProcessUpdateAction(const Context* context) = 0;
+    virtual void ProcessUpdateAction(const Context* context);
     virtual void OnShow(const Context* context);
     virtual bool AllowAutoChannelChange();
 

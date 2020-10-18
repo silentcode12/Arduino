@@ -22,6 +22,10 @@ bool Screen::AllowAutoChannelChange()
   return true;
 }
 
+void Screen::Render(const Adafruit_SSD1306* display, const Context* context){}
+
+void Screen::ProcessUpdateAction(const Context* context){};
+
 void Screen::drawText_P(const Adafruit_SSD1306* display, const char* text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript) 
 {
      char buf[strlen_P(text)+1];
