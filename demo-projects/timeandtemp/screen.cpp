@@ -28,9 +28,10 @@ void Screen::ProcessUpdateAction(const Context* context){};
 
 void Screen::drawText_P(const Adafruit_SSD1306* display, const char* text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript) 
 {
-     char buf[strlen_P(text)+1];
+     char* buf = new char[strlen_P(text)+1];
      strcpy_P(buf, text);
      drawText(display, buf, textSize, x, y, align, superscript);
+     delete[] buf;
 }
 
 void Screen::drawText(const Adafruit_SSD1306* display, const char* text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript)
