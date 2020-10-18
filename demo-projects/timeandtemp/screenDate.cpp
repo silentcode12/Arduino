@@ -5,7 +5,7 @@
 #include "screen.h"
 #include "screenDate.h"
 
-const char monthOfYear[12][4] PROGMEM = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Nov", "Dec"};  //Stored in flash, read out using sprintf_P with %S
+const char monthOfYear[12][4] PROGMEM = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};  //Stored in flash, read out using sprintf_P with %S
 
 void ScreenDate::ProcessUpdateAction(const Context* context)
 {
