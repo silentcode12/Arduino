@@ -20,7 +20,7 @@ void ScreenTime::Render(const Adafruit_SSD1306* display, const Context* context)
   //drawText_P(display, PSTR("Time"), 1, x, y, left, false); y += 20;
   char data[10];
   
-  short hour, minute, second;
+  byte hour, minute, second;
   context->GetTime(hour, minute, second);
 
   char tick = second % 2 == 1 ? ':' : ' ';

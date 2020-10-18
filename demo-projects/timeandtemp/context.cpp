@@ -86,14 +86,14 @@ void Context::SetDate(const short& year, const short& month, const short& day)
   rtc->adjust(DateTime(year, month, day, dateTime.hour(), dateTime.minute(), dateTime.second()));
 }
 
-void Context::GetTime(short& hour, short& minute, short& second)
+void Context::GetTime(byte& hour, byte& minute, byte& second)
 {
   hour = dateTime.hour();
   minute = dateTime.minute();
   second = dateTime.second();
 }
 
-void Context::SetTime(const short& hour, const short& minute, const short& second)
+void Context::SetTime(const byte& hour, const byte& minute, const byte& second)
 {
   rtc->adjust(DateTime(dateTime.year(), dateTime.month(), dateTime.day(), hour, minute, second));
 }

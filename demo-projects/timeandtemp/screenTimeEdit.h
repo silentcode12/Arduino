@@ -1,10 +1,10 @@
 class ScreenTimeEdit : public Screen
 {
  private:
-    short hour;
-    short minute;
-    short second;
-    int timeIndex;
+    byte hour;
+    byte minute;
+    byte second;
+    byte timeIndex;
  public:
     ScreenTimeEdit();
     void Render(const Adafruit_SSD1306* display, const Context* context) override;

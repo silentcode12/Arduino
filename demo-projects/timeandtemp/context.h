@@ -33,8 +33,8 @@ class Context
 	  //Data methods
     void GetDate(short& year, short& month, short& day);
     void SetDate(const short& year, const short& month, const short& day);
-    void GetTime(short& hour, short& minute, short& second);
-    void SetTime(const short& hour, const short& minute, const short& second);
+    void GetTime(byte& hour, byte& minute, byte& second);
+    void SetTime(const byte& hour, const byte& minute, const byte& second);
     const char* GetDayOfWeek();
 
 	  float GetPercentRh();
