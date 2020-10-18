@@ -2,8 +2,8 @@
 #include <Adafruit_SSD1306.h>
 #include <RTClib.h>
 #include <SparkFunBME280.h>
+#include "ema.h"
 #include "context.h"
-//#include "ema.h"
 
 //Constants
 #define OLED_RESET 4
@@ -20,6 +20,8 @@ float last = 0;
 Adafruit_SSD1306 display(OLED_RESET);
 RTC_DS3231 rtc;
 BME280 bme280;
+Context context(&rtc, &bme280, &display, &playAnimation);
+Ema button(0.5, 1);
 
 void playAnimation()
 {
@@ -51,10 +53,6 @@ void playAnimation()
   //Animation complete, allow normal screen updates.
   attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
 }
-
-Context context(&rtc, &bme280, &display, &playAnimation);
-
-Ema button(0.5, 1);
 
 void setup () 
 {

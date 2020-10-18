@@ -8,4 +8,5 @@ class ScreenSettings : public Screen
     void ProcessCommitAction(const Context* context) override;
     void ProcessUpdateAction(const Context* context) override;
     void OnShow(const Context* context) override;
+    bool AllowAutoChannelChange() override;
 };

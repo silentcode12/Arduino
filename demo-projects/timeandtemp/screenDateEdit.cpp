@@ -3,6 +3,7 @@
 #include <Adafruit_SSD1306.h>
 #include <SparkFunBME280.h>
 #include <RTClib.h>
+#include "ema.h"
 #include "context.h"
 #include "screen.h"
 #include "screenDateEdit.h"
@@ -16,6 +17,11 @@ void ScreenDateEdit::OnShow(const Context* context)
 {
   context->GetDate(year, month, day);
   dateIndex = 0;
+}
+
+bool ScreenDateEdit::AllowAutoChannelChange()
+{
+  return false;
 }
 
 void ScreenDateEdit::ProcessCommitAction(const Context* context)

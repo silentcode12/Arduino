@@ -5,6 +5,7 @@
 #include <Adafruit_SSD1306.h>
 #include <SparkFunBME280.h>
 #include "screen.h"
+#include "ema.h"
 #include "context.h"
 
 #include "screenDate.h"
@@ -54,6 +55,8 @@ Context::~Context()
   delete currentScreen;
 }
 
+int backoff = 0;
+
 void Context::RefreshData()
 {
   dateTime = rtc->now();
@@ -61,6 +64,14 @@ void Context::RefreshData()
   percentRH.AddSample(bme280->readFloatHumidity());
   //pressure.AddSample(bme280->readFloatPressure());
   //altitude.AddSample(bme280->readFloatAltitudeFeet());
+
+  if (backoff > 0)
+    backoff--;
+    
+  if (backoff <= 0 && IsAutoChannelChange() && currentScreen->AllowAutoChannelChange() && dateTime.second() % 20 == 0)
+  {
+    currentScreen->ProcessUpdateAction(this);
+  }
 }
 
 void Context::GetDate(short& year, short& month, short& day)
@@ -201,6 +212,7 @@ float Context::GetTemperature()
 
 void Context::UpdateInput()
 {
+  backoff = 60;  //User actively selected screen so disable ACC for a while...
 	currentScreen->ProcessUpdateAction(this);
 }
 

@@ -1,5 +1,3 @@
-#include "ema.h"
-
 class Screen;
 
 class Context

@@ -3,13 +3,9 @@
 #include <Adafruit_SSD1306.h>
 #include <SparkFunBME280.h>
 #include <RTClib.h>
+#include "ema.h"
 #include "context.h"
 #include "screen.h"
-
-Screen::Screen()
-{
-
-}
 
 void Screen::ProcessCommitAction(const Context* context)
 {
@@ -19,6 +15,11 @@ void Screen::ProcessCommitAction(const Context* context)
 void Screen::OnShow(const Context* context)
 {
   
+}
+
+bool Screen::AllowAutoChannelChange()
+{
+  return true;
 }
 
 void Screen::drawText_P(const Adafruit_SSD1306* display, const char* text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript) 

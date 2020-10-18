@@ -3,6 +3,7 @@
 #include <Adafruit_SSD1306.h>
 #include <SparkFunBME280.h>
 #include <RTClib.h>
+#include "ema.h"
 #include "context.h"
 #include "screen.h"
 #include "screenSettings.h"
@@ -46,6 +47,11 @@ void ScreenSettings::ProcessUpdateAction(const Context* context)
 void ScreenSettings::OnShow(const Context* context)
 {
     current = 0;
+}
+
+bool ScreenSettings::AllowAutoChannelChange()
+{
+  return false;
 }
 
 #define x0 4

@@ -3,6 +3,7 @@
 #include <Adafruit_SSD1306.h>
 #include <SparkFunBME280.h>
 #include <RTClib.h>
+#include "ema.h"
 #include "context.h"
 #include "screen.h"
 #include "screenTimeEdit.h"
@@ -16,6 +17,11 @@ void ScreenTimeEdit::OnShow(const Context* context)
 {
   context->GetTime(hour, minute, second);
   timeIndex = 0;
+}
+
+bool ScreenTimeEdit::AllowAutoChannelChange()
+{
+  return false;
 }
 
 void ScreenTimeEdit::ProcessCommitAction(const Context* context)
