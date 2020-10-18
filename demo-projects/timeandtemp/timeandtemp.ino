@@ -26,7 +26,7 @@ Ema button(0.5, 1);
 
 void playAnimation()
 {
-  //Prevent the update interupt from painting the current screen during the animation.
+  //Prevent the update interrupt from painting the current screen during the animation.
   noInterrupts();
   detachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN));
   interrupts();
@@ -155,11 +155,11 @@ void ButtonUp()
 {
   if (!isLongPress)
   {
-    context.UpdateInput();
+    context.UserInputUpdate();
   }
 }
 
 void LongPressBegin()
 {
-   context.CommitInput();
+   context.UserInputCommit();
 }

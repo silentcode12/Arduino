@@ -10,46 +10,6 @@ ScreenTimeEdit::ScreenTimeEdit()
   timeIndex = 0;
 }
 
-void ScreenTimeEdit::OnShow(const Context* context)
-{
-  context->GetTime(hour, minute, second);
-  second = 0;
-  timeIndex = 0;
-}
-
-bool ScreenTimeEdit::AllowAutoChannelChange()
-{
-  return false;
-}
-
-void ScreenTimeEdit::Tick()
-{
-  if (timeIndex == 2)
-  {
-    if (second + 1 > 59)
-      second = 0;
-    else
-      second++;
-  }
-}
-
-void ScreenTimeEdit::ProcessCommitAction(const Context* context)
-{
-  timeIndex++;
-  switch (timeIndex)
-  {
-    case 0: break;
-    case 1: break;
-    case 2: break;
-    default: 
-    {
-      context->SetTime(hour, minute, second);
-      context->GotoTimeScreen();
-      break;
-    }
-  }
-}
-
 void ScreenTimeEdit::ProcessUpdateAction(const Context* context)
 {
   switch(timeIndex)
@@ -70,6 +30,23 @@ void ScreenTimeEdit::ProcessUpdateAction(const Context* context)
         second = 0; //Note:  reset seconds to zero for synchronization, will count up
         return;
     }
+}
+
+void ScreenTimeEdit::ProcessCommitAction(const Context* context)
+{
+  timeIndex++;
+  switch (timeIndex)
+  {
+    case 0: break;
+    case 1: break;
+    case 2: break;
+    default: 
+    {
+      context->SetTime(hour, minute, second);
+      context->GotoTimeScreen();
+      break;
+    }
+  }
 }
 
 void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* context)
@@ -100,5 +77,28 @@ void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* cont
     + (timeIndex * w / 2);  //divider width
     int x1 = x + w;  // underline the two digits
     display->drawLine(x, y, x1, y, 1);
+  }
+}
+
+void ScreenTimeEdit::OnShow(const Context* context)
+{
+  context->GetTime(hour, minute, second);
+  second = 0;
+  timeIndex = 0;
+}
+
+bool ScreenTimeEdit::AllowAutoChannelChange()
+{
+  return false;
+}
+
+void ScreenTimeEdit::Tick()
+{
+  if (timeIndex == 2)
+  {
+    if (second + 1 > 59)
+      second = 0;
+    else
+      second++;
   }
 }

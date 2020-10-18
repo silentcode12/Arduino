@@ -10,37 +10,6 @@ ScreenDateEdit::ScreenDateEdit()
   dateIndex = 0;
 }
 
-void ScreenDateEdit::OnShow(const Context* context)
-{
-  context->GetDate(year, month, day);
-  dateIndex = 0;
-}
-
-bool ScreenDateEdit::AllowAutoChannelChange()
-{
-  return false;
-}
-
-void ScreenDateEdit::ProcessCommitAction(const Context* context)
-{
-    dateIndex++;
-    switch (dateIndex)
-    {
-      case 0: break;
-      case 1: break;
-      case 2: break;
-      case 3: break;
-      case 4: break;
-      case 5: break;
-      default: 
-      {
-        context->SetDate(year, month, day);
-        context->GotoDateScreen();
-        break;
-      }
-    }
-}
-
 void ScreenDateEdit::ProcessUpdateAction(const Context* context)
 {
       //Deconstruct the year, Todo: Only do this when updated year parts
@@ -108,6 +77,26 @@ void ScreenDateEdit::ProcessUpdateAction(const Context* context)
       year = thousands * 1000 + hundreds * 100 + tens * 10 + ones;
 }
 
+void ScreenDateEdit::ProcessCommitAction(const Context* context)
+{
+    dateIndex++;
+    switch (dateIndex)
+    {
+      case 0: break;
+      case 1: break;
+      case 2: break;
+      case 3: break;
+      case 4: break;
+      case 5: break;
+      default: 
+      {
+        context->SetDate(year, month, day);
+        context->GotoDateScreen();
+        break;
+      }
+    }
+}
+
 void ScreenDateEdit::Render(const Adafruit_SSD1306* display, const Context* context)
 {
   int x, y;
@@ -152,6 +141,17 @@ void ScreenDateEdit::Render(const Adafruit_SSD1306* display, const Context* cont
   y = 32;
   x = 64;  
   drawText(display, data, 3, x, y, center, false);
+}
+
+void ScreenDateEdit::OnShow(const Context* context)
+{
+  context->GetDate(year, month, day);
+  dateIndex = 0;
+}
+
+bool ScreenDateEdit::AllowAutoChannelChange()
+{
+  return false;
 }
 
 bool ScreenDateEdit::IsLeapYear(short year)

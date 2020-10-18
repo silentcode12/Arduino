@@ -202,13 +202,13 @@ float Context2::GetTemperature()
   return temperature.GetValue();
 }
 
-void Context2::UpdateInput()
+void Context2::UserInputUpdate()
 {
   backoff = 60;  //User actively selected screen so disable ACC for a while...
   currentScreen->ProcessUpdateAction(this);
 }
 
-void Context2::CommitInput()
+void Context2::UserInputCommit()
 {
   currentScreen->ProcessCommitAction(this);
 }

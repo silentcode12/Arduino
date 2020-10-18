@@ -4,6 +4,11 @@
 #include "context.h"
 #include "screen.h"
 
+void Screen::ProcessUpdateAction(const Context* context)
+{
+	
+};
+
 void Screen::ProcessCommitAction(const Context* context)
 {
    context->GotoSettingsScreen();
@@ -12,6 +17,11 @@ void Screen::ProcessCommitAction(const Context* context)
 void Screen::OnShow(const Context* context)
 {
   
+}
+
+void Screen::Render(const Adafruit_SSD1306* display, const Context* context)
+{
+	
 }
 
 bool Screen::AllowAutoChannelChange()
@@ -23,10 +33,6 @@ void Screen::Tick()
 {
   
 }
-
-void Screen::Render(const Adafruit_SSD1306* display, const Context* context){}
-
-void Screen::ProcessUpdateAction(const Context* context){};
 
 //Use this function if the text pointer is pointing to program memory.
 void Screen::drawText_P(const Adafruit_SSD1306* display, const char* text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript) 

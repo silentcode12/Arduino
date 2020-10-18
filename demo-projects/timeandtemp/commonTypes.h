@@ -1,6 +1,6 @@
 typedef enum
 {
-  left,
-  center,
-  right
+	left,
+	center,
+	right
 } ALIGN;

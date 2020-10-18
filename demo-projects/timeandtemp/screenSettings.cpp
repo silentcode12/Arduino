@@ -9,6 +9,14 @@
 
 const char menuItems[MENUITEMCOUNT][9] PROGMEM = {"Set Time", "Set Date", "CLK %shr" , "Temp %s", "ACC %s",  "Exit"};  //Stored in flash, read out using sprintf_P with %S
 
+
+void ScreenSettings::ProcessUpdateAction(const Context* context)
+{
+    current++;
+    if (current >= MENUITEMCOUNT)
+      current = 0;
+}
+
 void ScreenSettings::ProcessCommitAction(const Context* context)
 {
    switch(current)
@@ -32,13 +40,6 @@ void ScreenSettings::ProcessCommitAction(const Context* context)
       context->GotoTimeScreen();
       break;
    }
-}
-
-void ScreenSettings::ProcessUpdateAction(const Context* context)
-{
-    current++;
-    if (current >= MENUITEMCOUNT)
-      current = 0;
 }
 
 void ScreenSettings::OnShow(const Context* context)
