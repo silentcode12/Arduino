@@ -19,7 +19,7 @@ void ScreenDate::Render(const Adafruit_SSD1306* display, const Context* context)
 {
   int x, y;
   x = y = 10;
-  //drawText_P(display, PSTR("Date"), 1, x, y, left, false);
+
   short year;
   byte day, month;
   context->GetDate(year, month, day);

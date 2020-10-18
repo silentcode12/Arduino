@@ -18,10 +18,11 @@ class Context
     //BME280 readings
     Ema percentRH;
     Ema temperature;
-    //Ema altitude;
-    //Ema pressure;
 
     void SwapScreen(const Screen* newScreen);
+
+    void SetSetting(byte settingMask, bool value);
+    bool GetSetting(byte settingMask);
     
   public:
     void RefreshData();

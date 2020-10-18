@@ -17,7 +17,6 @@ void ScreenRh::Render(const Adafruit_SSD1306* display, const Context* context)
 {
   int x, y;
   x = y = 10;
-  //drawText_P(display, PSTR("%RH"), 1, x, y, left, false);
 
   //display humidity
   char data[10];

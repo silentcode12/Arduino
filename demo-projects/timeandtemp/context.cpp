@@ -29,9 +29,7 @@ const char daysOfTheWeek[7][4] PROGMEM = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fr
 
 Context::Context(const RTC_DS3231* rtc, const BME280* bme280, const Adafruit_SSD1306* display, const void (*playAnimationCallback)()) : 
 percentRH (0.1, 0),
-temperature (0.9, 0)//,
-//altitude (0.1, 0),
-//pressure (0.1, 0)
+temperature (0.9, 0)
 {
   this->rtc = rtc;
   this->bme280 = bme280;
@@ -46,8 +44,6 @@ void Context::Begin()
   //Prime the first value to avoid initial homing of average from zero.
   percentRH.Reset(bme280->readFloatHumidity());
   temperature.Reset(bme280->readTempF() + TEMP_CORRECTION);
-  //altitude.Reset(bme280->readFloatAltitudeFeet());
-  //pressure.Reset(bme280->readFloatPressure());
 }
 
 Context::~Context()
@@ -62,8 +58,6 @@ void Context::RefreshData()
   dateTime = rtc->now();
   temperature.AddSample(bme280->readTempF() + TEMP_CORRECTION);
   percentRH.AddSample(bme280->readFloatHumidity());
-  //pressure.AddSample(bme280->readFloatPressure());
-  //altitude.AddSample(bme280->readFloatAltitudeFeet());
 
   if (backoff > 0)
     backoff--;
@@ -148,58 +142,52 @@ void Context::SwapScreen(const Screen* newScreen)
   currentScreen->OnShow(this);
 }
 
-bool Context::Is24Hour()
-{ 
+void Context::SetSetting(byte settingMask, bool value)
+{
   byte s;
   EEPROM.get((int)&settings, s);
-  return (s & IS_24HR) == IS_24HR;
+  if (value)
+    s |= settingMask;
+  else
+    s &= ~settingMask;
+  EEPROM.put((int)&settings, s);
+}
+
+bool Context::GetSetting(byte settingMask)
+{
+  byte s;
+  EEPROM.get((int)&settings, s);
+  return (s & settingMask) == settingMask;
+}
+
+bool Context::Is24Hour()
+{ 
+  return GetSetting(IS_24HR);
 }
 
 void Context::SetIs24Hour(bool value)
 {
-  byte s;
-  EEPROM.get((int)&settings, s);
-  if (value)
-    s |= IS_24HR;
-  else
-    s &= ~IS_24HR;
-  EEPROM.put((int)&settings, s);
+  SetSetting(IS_24HR, value);
 }
 
 bool Context::IsMetric()
 {
-  byte s;
-  EEPROM.get((int)&settings, s);
-  return (s & IS_METRIC) == IS_METRIC;
+  return GetSetting(IS_METRIC);
 }
 
 void Context::SetIsMetric(bool value)
 {
-  byte s;
-  EEPROM.get((int)&settings, s);
-  if (value)
-    s |= IS_METRIC;
-  else
-    s &= ~IS_METRIC;
-  EEPROM.put((int)&settings, s);
+  SetSetting(IS_METRIC, value);
 }
 
 bool Context::IsAutoChannelChange()
 {
-  byte s;
-  EEPROM.get((int)&settings, s);
-  return (s & IS_ACC) == IS_ACC;
+  return GetSetting(IS_ACC);
 }
 
 void Context::SetIsAutoChannelChange(bool value)
 {
-  byte s;
-  EEPROM.get((int)&settings, s);
-  if (value)
-    s |= IS_ACC;
-  else
-    s &= ~IS_ACC;
-  EEPROM.put((int)&settings, s);
+  SetSetting(IS_ACC, value);
 }
 
 float Context::GetPercentRh()
