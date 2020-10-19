@@ -1,5 +1,5 @@
 #include "commonTypes.h"
-#include "Adafruit_GFX.h"
+#include "arduino.h"
 #include "context.h"
 #include "screen.h"
 
