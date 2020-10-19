@@ -25,11 +25,11 @@ private:
 	bool GetSetting(byte settingMask);
 	
 public:
-	virtual void RefreshData() override;
-	virtual void Begin() override;
-	virtual void UserInputUpdate() override;
-	virtual void UserInputCommit() override;
-	virtual void RefreshDisplay() override;
+	void RefreshData();
+	void Begin();
+	void UserInputUpdate();
+	void UserInputCommit();
+	void RefreshDisplay();
 
 	//Data methods
 	virtual void GetDate(short& year, byte& month, byte& day) override;

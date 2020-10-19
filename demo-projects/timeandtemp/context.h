@@ -1,12 +1,6 @@
 class Context
 {	
 public:
-	virtual void Begin() = 0;
-	virtual void UserInputUpdate() = 0;
-	virtual void UserInputCommit() = 0;
-	virtual void RefreshDisplay() = 0;
-	virtual void RefreshData() = 0;
-
 	//Data methods
 	virtual void GetDate(short& year, byte& month, byte& day) = 0;
 	virtual void SetDate(const short& year, const byte& month, const byte& day) = 0;
