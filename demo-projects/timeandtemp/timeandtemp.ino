@@ -43,7 +43,7 @@ void playAnimation()
       }
     }
 
-    //Draw a horizontall bar that moves up the screen to simulate vertical hold
+    //Draw a horizontal bar that moves up the screen to simulate vertical hold
     display.fillRect(0, vHoldPos, SSD1306_LCDWIDTH, 15, 0);
 
     vHoldPos -= 4;
