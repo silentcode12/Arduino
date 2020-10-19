@@ -25,12 +25,18 @@ private:
 	bool GetSetting(byte settingMask);
 	
 public:
-	void RefreshData();
-	void Begin();
-	void UserInputUpdate();
-	void UserInputCommit();
-	void RefreshDisplay();
+	void RefreshData()
+  void RefreshDisplay();
 
+  //Initializes the object
+	void Begin();
+
+  //User input, update current value
+	void UserInputUpdate();
+ 
+  //User input, commit the current value
+	void UserInputCommit();
+ 
 	//Data methods
 	virtual void GetDate(short& year, byte& month, byte& day) override;
 	virtual void SetDate(const short& year, const byte& month, const byte& day) override;
