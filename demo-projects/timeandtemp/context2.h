@@ -25,7 +25,7 @@ private:
 	bool GetSetting(byte settingMask);
 	
 public:
-	void RefreshData()
+	void RefreshData();
   void RefreshDisplay();
 
   //Initializes the object
@@ -40,8 +40,10 @@ public:
 	//Data methods
 	virtual void GetDate(short& year, byte& month, byte& day) override;
 	virtual void SetDate(const short& year, const byte& month, const byte& day) override;
+ 
 	virtual void GetTime(byte& hour, byte& minute, byte& second) override;
 	virtual void SetTime(const byte& hour, const byte& minute, const byte& second) override;
+  
 	virtual const char* GetDayOfWeek() override;
 
 	virtual float GetPercentRh() override;
