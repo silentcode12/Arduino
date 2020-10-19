@@ -1,6 +1,5 @@
 #include "commonTypes.h"
 #include "Adafruit_GFX.h"
-#include <Adafruit_SSD1306.h>
 #include "context.h"
 #include "screen.h"
 #include "screenDate.h"
@@ -12,7 +11,7 @@ void ScreenDate::ProcessUpdateAction(const Context* context)
   context->GotoTempScreen();
 }
 
-void ScreenDate::Render(const Adafruit_SSD1306* display, const Context* context)
+void ScreenDate::Render(const Context* context)
 {
   short year;
   byte day, month;
@@ -23,5 +22,5 @@ void ScreenDate::Render(const Adafruit_SSD1306* display, const Context* context)
   sprintf_P(data2, PSTR("%S %S\n%d %d"), context->GetDayOfWeek(), monthOfYear[month-1], day, year);
   int x = 0;
   int y = 16;
-  drawText(display, data2, 3, x, y, left, false);
+  context->drawText(data2, 3, x, y, left, false);
 }

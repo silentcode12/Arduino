@@ -1,6 +1,5 @@
 #include "commonTypes.h"
 #include "Adafruit_GFX.h"
-#include <Adafruit_SSD1306.h>
 #include "context.h"
 #include "screen.h"
 #include "screenDateEdit.h"
@@ -98,7 +97,7 @@ void ScreenDateEdit::ProcessCommitAction(const Context* context)
     }
 }
 
-void ScreenDateEdit::Render(const Adafruit_SSD1306* display, const Context* context)
+void ScreenDateEdit::Render(const Context* context)
 {
   int x, y;
 
@@ -108,7 +107,7 @@ void ScreenDateEdit::Render(const Adafruit_SSD1306* display, const Context* cont
   if(dateIndex <= 3)
   {
     //set year
-    drawText_P(display, PSTR("Year"), 1, x, y, left, false);
+    context->drawText_P(PSTR("Year"), 1, x, y, left, false);
 
     //draw indicator column marker
     int w = 12;
@@ -119,7 +118,7 @@ void ScreenDateEdit::Render(const Adafruit_SSD1306* display, const Context* cont
       + (dateIndex * w) //numeric digits width
       + (dateIndex * w / 2);  //divider width
       int x1 = x + w;  // underline the two digits
-      display->drawLine(x, y, x1, y, 1);
+      context->drawLine(x, y, x1, y, 1);
     }
 
     sprintf_P(data, PSTR("%d"), year);
@@ -127,21 +126,21 @@ void ScreenDateEdit::Render(const Adafruit_SSD1306* display, const Context* cont
   else if (dateIndex == 4)
   {
     //set month
-    drawText_P(display, PSTR("Month"), 1, x, y, left, false);
+    context->drawText_P(PSTR("Month"), 1, x, y, left, false);
 
     sprintf_P(data, PSTR("%d"), month);
   }
   else if (dateIndex == 5)
   {
     //set day
-    drawText_P(display, PSTR("Day"), 1, x, y, left, false);
+    context->drawText_P(PSTR("Day"), 1, x, y, left, false);
 
     sprintf_P(data, PSTR("%d"), day);
   }
 
   y = 32;
   x = 64;  
-  drawText(display, data, 3, x, y, center, false);
+  context->drawText(data, 3, x, y, center, false);
 }
 
 void ScreenDateEdit::OnShow(const Context* context)

@@ -1,6 +1,5 @@
 #include "commonTypes.h"
 #include "Adafruit_GFX.h"
-#include <Adafruit_SSD1306.h>
 #include "context.h"
 #include "screen.h"
 #include "screenTemp.h"
@@ -10,7 +9,7 @@ void ScreenTemp::ProcessUpdateAction(const Context* context)
    context->GotoRhScreen();
 }
 
-void ScreenTemp::Render(const Adafruit_SSD1306* display, const Context* context)
+void ScreenTemp::Render(const Context* context)
 {
   //display temp
   char data[10];
@@ -31,5 +30,5 @@ void ScreenTemp::Render(const Adafruit_SSD1306* display, const Context* context)
   
   int x = 64;
   int y = 40;
-  drawText(display, data, 3, x, y, center, false);
+  context->drawText(data, 3, x, y, center, false);
 }

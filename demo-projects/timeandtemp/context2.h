@@ -68,4 +68,10 @@ public:
 
 	virtual bool GetIsAutoChannelChange() override;
 	virtual void SetIsAutoChannelChange(bool value) override;
+
+  //paint methods
+  virtual void drawText_P(const char* text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript) override;
+  virtual void drawText(const char* text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript) override; 
+  virtual void drawLine(int16_t x, int16_t y, int16_t x1, int16_t y2, int16_t color) override;
+  virtual void drawRoundRect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t radius, int16_t color) override;
 };

@@ -1,6 +1,5 @@
 #include "commonTypes.h"
 #include "Adafruit_GFX.h"
-#include <Adafruit_SSD1306.h>
 #include "context.h"
 #include "screen.h"
 #include "screenTimeEdit.h"
@@ -49,7 +48,7 @@ void ScreenTimeEdit::ProcessCommitAction(const Context* context)
   }
 }
 
-void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* context)
+void ScreenTimeEdit::Render(const Context* context)
 {
   int x, y;
   x = y = 10;
@@ -62,7 +61,7 @@ void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* cont
   else
     sprintf_P(data, PSTR("%02d:%02d:%02d %S"), hour > 12 ? hour - 12 : hour, minute, second, hour > 11 ? PSTR("P") : PSTR("A"));
     
-  drawText(display, data, 2, x, y, left, false);
+  context->drawText(data, 2, x, y, left, false);
 
   //Draw a selection line under the active field.
   int w;
@@ -75,7 +74,7 @@ void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* cont
     + (timeIndex * w) //numeric digits width
     + (timeIndex * w / 2);  //divider width
     int x1 = x + w;  // underline the two digits
-    display->drawLine(x, y, x1, y, 1);
+    context->drawLine(x, y, x1, y, 1);
   }
 }
 

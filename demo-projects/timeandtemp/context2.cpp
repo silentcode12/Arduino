@@ -216,6 +216,55 @@ void Context2::UserInputCommit()
 void Context2::RefreshDisplay()
 {
   display->clearDisplay();
-  currentScreen->Render(display, this);
+  currentScreen->Render(this);
   display->display();
+}
+
+//Use this function if the text pointer is pointing to program memory.
+void Context2::drawText_P(const char* text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript) 
+{
+     char* buf = new char[strlen_P(text)+1];
+     strcpy_P(buf, text);
+     drawText(buf, textSize, x, y, align, superscript);
+     delete[] buf;
+}
+
+void Context2::drawText(const char* text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript)
+{
+  int16_t x1 = 0, y1 = 0;
+  uint16_t w = 0, h = 0;
+  display->setCursor(0,0);
+  display->setTextWrap(false);
+  display->setTextColor(WHITE);
+  display->setTextSize(textSize);
+  display->getTextBounds(text, 0, 0, &x1, &y1, &w, &h);
+  
+  switch(align)
+  {
+    case left:
+    
+    break;
+    case center:
+      x -= w / 2;
+      y -= h / 2;
+    break;
+    
+    case right:
+      x -= w;
+      y -= superscript ? 2 * h : h;
+    break;
+  }
+
+  display->setCursor(x, y);
+  display->print(text);
+}
+
+void Context2::drawLine(int16_t x, int16_t y, int16_t x1, int16_t y1, int16_t color)
+{
+  display->drawLine(x, y, x1, y1, color);
+}
+
+void Context2::drawRoundRect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t radius, int16_t color)
+{
+  display->drawRoundRect(x, y, w, h, radius, color);
 }

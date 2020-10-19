@@ -1,6 +1,5 @@
 #include "commonTypes.h"
 #include "Adafruit_GFX.h"
-#include <Adafruit_SSD1306.h>
 #include "context.h"
 #include "screen.h"
 #include "screenSettings.h"
@@ -60,9 +59,9 @@ bool ScreenSettings::AllowAutoChannelChange()
 #define color 1
 #define ARRAY_SIZE 10
 
-void ScreenSettings::Render(const Adafruit_SSD1306* display, const Context* context)
+void ScreenSettings::Render(const Context* context)
 {
-  display->drawRoundRect(x0, y0, w, h, radius, color);
+  context->drawRoundRect(x0, y0, w, h, radius, color);
   
   char data2[ARRAY_SIZE];
   sprintf_P(data2, PSTR("%S"), menuItems[current]);
@@ -91,5 +90,5 @@ void ScreenSettings::Render(const Adafruit_SSD1306* display, const Context* cont
   
   int x = 64;
   int y = 32;
-  drawText(display, data2, 2, x, y, center, false);
+  context->drawText(data2, 2, x, y, center, false);
 }

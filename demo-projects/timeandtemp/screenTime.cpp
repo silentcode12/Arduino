@@ -1,6 +1,5 @@
 #include "commonTypes.h"
 #include "Adafruit_GFX.h"
-#include <Adafruit_SSD1306.h>
 #include "context.h"
 #include "screen.h"
 #include "screenTime.h"
@@ -10,7 +9,7 @@ void ScreenTime::ProcessUpdateAction(const Context* context)
    context->GotoDateScreen();
 }
 
-void ScreenTime::Render(const Adafruit_SSD1306* display, const Context* context)
+void ScreenTime::Render(const Context* context)
 {
   char data[10];
   
@@ -26,5 +25,5 @@ void ScreenTime::Render(const Adafruit_SSD1306* display, const Context* context)
 
   int x = 64;
   int y = 40;
-  drawText(display, data, context->GetIs24Hour() ? 4 : 3, x, y, center, false);
+  context->drawText(data, context->GetIs24Hour() ? 4 : 3, x, y, center, false);
 }
