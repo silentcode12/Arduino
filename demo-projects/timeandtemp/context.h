@@ -12,7 +12,7 @@ public:
 
 	virtual float GetPercentRh() = 0;
 	
-	virtual float GetTemperature() = 0;
+	virtual float GetTemperatureF() = 0;
 	
 	//Navigation methods
 	virtual void GotoDateScreen() = 0;

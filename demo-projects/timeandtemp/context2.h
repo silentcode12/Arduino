@@ -48,7 +48,7 @@ public:
 
 	virtual float GetPercentRh() override;
 
-	virtual float GetTemperature() override;
+	virtual float GetTemperatureF() override;
 	
 	//Navigation methods
 	virtual void GotoDateScreen() override;

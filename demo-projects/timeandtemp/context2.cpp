@@ -197,7 +197,7 @@ float Context2::GetPercentRh()
   return percentRH.GetValue();
 }
 
-float Context2::GetTemperature()
+float Context2::GetTemperatureF()
 {
   return temperature.GetValue();
 }

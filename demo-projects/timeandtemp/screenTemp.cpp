@@ -15,7 +15,7 @@ void ScreenTemp::Render(const Adafruit_SSD1306* display, const Context* context)
   //display temp
   char data[10];
 
-  float temp = context->GetTemperature();
+  float temp = context->GetTemperatureF();
 
   if (context->GetIsMetric())
   {
