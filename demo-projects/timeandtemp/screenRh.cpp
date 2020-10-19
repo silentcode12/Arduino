@@ -12,15 +12,12 @@ void ScreenRh::ProcessUpdateAction(const Context* context)
 
 void ScreenRh::Render(const Adafruit_SSD1306* display, const Context* context)
 {
-  int x, y;
-  x = y = 10;
-
   //display humidity
   char data[10];
   dtostrf(context->GetPercentRh(), 3, 1, data);
   sprintf_P(data, PSTR("%s %%"), data);
 
-  x = 64;
-  y = 40;
+  int x = 64;
+  int y = 40;
   drawText(display, data, 3, x, y, center, false);
 }

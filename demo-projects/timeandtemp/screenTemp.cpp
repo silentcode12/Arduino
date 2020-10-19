@@ -12,9 +12,6 @@ void ScreenTemp::ProcessUpdateAction(const Context* context)
 
 void ScreenTemp::Render(const Adafruit_SSD1306* display, const Context* context)
 {
-  int x, y;
-  x = y = 10;
-  
   //display temp
   char data[10];
 
@@ -32,7 +29,7 @@ void ScreenTemp::Render(const Adafruit_SSD1306* display, const Context* context)
     sprintf_P(data, PSTR("%s F"), data);
   }
   
-  x = 64;
-  y = 40;
+  int x = 64;
+  int y = 40;
   drawText(display, data, 3, x, y, center, false);
 }

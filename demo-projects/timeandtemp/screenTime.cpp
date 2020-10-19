@@ -12,9 +12,6 @@ void ScreenTime::ProcessUpdateAction(const Context* context)
 
 void ScreenTime::Render(const Adafruit_SSD1306* display, const Context* context)
 {
-  int x, y;
-  x = y = 10;
-
   char data[10];
   
   byte hour, minute, second;
@@ -27,7 +24,7 @@ void ScreenTime::Render(const Adafruit_SSD1306* display, const Context* context)
   else
     sprintf_P(data, PSTR("%02d%c%02d %s"), hour > 12 ? hour - 12 : hour, tick, minute, hour > 12 ? "P" : "A");
 
-  x = 64;
-  y = 40;
+  int x = 64;
+  int y = 40;
   drawText(display, data, context->GetIs24Hour() ? 4 : 3, x, y, center, false);
 }

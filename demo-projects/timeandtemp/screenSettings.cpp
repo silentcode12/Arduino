@@ -58,32 +58,33 @@ bool ScreenSettings::AllowAutoChannelChange()
 #define h 32
 #define radius 5
 #define color 1
+#define ARRAY_SIZE 10
 
 void ScreenSettings::Render(const Adafruit_SSD1306* display, const Context* context)
 {
   display->drawRoundRect(x0, y0, w, h, radius, color);
   
-  char data2[10];
+  char data2[ARRAY_SIZE];
   sprintf_P(data2, PSTR("%S"), menuItems[current]);
 
   if (current == 2)
   {
     char data3[10];
-    for(int x=0;x<20;x++)
+    for(int x=0;x<ARRAY_SIZE;x++)
       data3[x]=data2[x];
     sprintf(data2, data3, context->GetIs24Hour() ? "24" : "12");
   }
   else if (current == 3)
   {
-    char data3[10];
-    for(int x=0;x<20;x++)
+    char data3[ARRAY_SIZE];
+    for(int x=0;x<ARRAY_SIZE;x++)
       data3[x]=data2[x];
     sprintf(data2, data3, context->GetIsMetric() ? "C" : "F");
   }
   else if (current == 4)
   {
-    char data3[10];
-    for(int x=0;x<20;x++)
+    char data3[ARRAY_SIZE];
+    for(int x=0;x<ARRAY_SIZE;x++)
       data3[x]=data2[x];
     sprintf(data2, data3, context->GetIsAutoChannelChange() ? "on" : "off");
   }

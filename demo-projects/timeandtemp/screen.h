@@ -3,6 +3,9 @@ class Context;
 class Screen 
 {
 public:
+  virtual ~Screen();
+  
+public:
 	virtual void ProcessUpdateAction(const Context* context);
 	virtual void ProcessCommitAction(const Context* context);
 	virtual void Render(const Adafruit_SSD1306* display, const Context* context);

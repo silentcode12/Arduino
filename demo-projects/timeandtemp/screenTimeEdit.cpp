@@ -65,11 +65,10 @@ void ScreenTimeEdit::Render(const Adafruit_SSD1306* display, const Context* cont
   drawText(display, data, 2, x, y, left, false);
 
   //Draw a selection line under the active field.
-  int w, h;
+  int w;
 
   w = 24;
-  y = 45;
-
+  
   for(y=45; y <48; y ++)
   {
     x = 10 

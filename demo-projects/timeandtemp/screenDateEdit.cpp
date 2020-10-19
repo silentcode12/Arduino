@@ -8,6 +8,7 @@
 ScreenDateEdit::ScreenDateEdit()
 {
   dateIndex = 0;
+  year=2020;
 }
 
 void ScreenDateEdit::ProcessUpdateAction(const Context* context)

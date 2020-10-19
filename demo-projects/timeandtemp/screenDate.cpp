@@ -14,9 +14,6 @@ void ScreenDate::ProcessUpdateAction(const Context* context)
 
 void ScreenDate::Render(const Adafruit_SSD1306* display, const Context* context)
 {
-  int x, y;
-  x = y = 10;
-
   short year;
   byte day, month;
   context->GetDate(year, month, day);
@@ -24,7 +21,7 @@ void ScreenDate::Render(const Adafruit_SSD1306* display, const Context* context)
   //display date
   char data2[17];
   sprintf_P(data2, PSTR("%S %S\n%d %d"), context->GetDayOfWeek(), monthOfYear[month-1], day, year);
-  x = 0;
-  y = 16;
+  int x = 0;
+  int y = 16;
   drawText(display, data2, 3, x, y, left, false);
 }

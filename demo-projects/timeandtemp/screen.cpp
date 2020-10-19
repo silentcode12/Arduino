@@ -4,6 +4,10 @@
 #include "context.h"
 #include "screen.h"
 
+Screen::~Screen()
+{
+}
+
 void Screen::ProcessUpdateAction(const Context* context)
 {
 	
