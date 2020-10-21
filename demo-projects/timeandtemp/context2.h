@@ -25,7 +25,7 @@ private:
 	bool GetSetting(byte settingMask);
 	
 public:
-	void RefreshData();
+	void RefreshData(bool isUserInput);
   void RefreshDisplay();
 
   //Initializes the object

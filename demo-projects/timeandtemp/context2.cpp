@@ -54,7 +54,7 @@ Context2::~Context2()
 
 byte backoff = 0;
 
-void Context2::RefreshData()
+void Context2::RefreshData(bool isUserInput)
 {
   dateTime = rtc->now();
   temperature.AddSample(bme280->readTempF() + TEMP_CORRECTION);
@@ -68,7 +68,10 @@ void Context2::RefreshData()
     currentScreen->ProcessUpdateAction(this);
   }
 
-  currentScreen->Tick();
+  if (!isUserInput)
+  {
+    currentScreen->Tick();
+  }
 }
 
 void Context2::GetDate(short& year, byte& month, byte& day)

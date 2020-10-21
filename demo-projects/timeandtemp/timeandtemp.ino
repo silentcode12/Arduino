@@ -86,7 +86,7 @@ void setup ()
   attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
 }
 
-void pin3ISR()
+void UpdateContext(bool isUserInput)
 {
   static boolean IsRunning = false;
   if(IsRunning) 
@@ -96,17 +96,23 @@ void pin3ISR()
   
   interrupts(); //Enable interrupts so that I2C communication can work, equivalent to sei();
   
-  context.RefreshData();
+  context.RefreshData(isUserInput);
   context.RefreshDisplay();
 
   noInterrupts();
-  IsRunning = false;
+  
+  IsRunning = false;  
+}
+
+void pin3ISR()
+{
+  UpdateContext(false);
 }
 
 void UpdateImmediate()
 {
-  noInterrupts();
-  pin3ISR();
+  noInterrupts();  //replicate the ISR behavior
+  UpdateContext(true);
   interrupts();
 }
 
