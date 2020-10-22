@@ -28,7 +28,7 @@ byte settings EEMEM = {0}; //todo:  Figure out how to initialize eeprom memory a
 
 const char daysOfTheWeek[7][4] PROGMEM = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};  //Stored in flash, read out using sprintf_P with %S
 
-Context2::Context2(const RTC_DS3231* rtc, const BME280* bme280, const Adafruit_SSD1306* display, const void (*playAnimationCallback)()) : 
+Context2::Context2(const RTC_DS3231* rtc, const BME280* bme280, const Adafruit_SSD1306* display) : 
 percentRH (0.1, 0),
 temperature (0.9, 0)
 {
@@ -36,7 +36,6 @@ temperature (0.9, 0)
   this->bme280 = bme280;
   currentScreen = new ScreenTime();
   this->display = display;
-  this->playAnimationCallback = playAnimationCallback;
 }
 
 void Context2::Begin()
@@ -52,13 +51,22 @@ Context2::~Context2()
   delete currentScreen;
 }
 
-byte backoff = 0;
+volatile byte backoff = 0;
+volatile bool playingAnimation = false;
 
 void Context2::RefreshData(bool isUserInput)
 {
   dateTime = rtc->now();
   temperature.AddSample(bme280->readTempF() + TEMP_CORRECTION);
   percentRH.AddSample(bme280->readFloatHumidity());
+  
+  if (!isUserInput)
+  {
+    currentScreen->Tick();
+  }
+  
+  if (playingAnimation)
+    return;
 
   if (backoff > 0)
     backoff--;
@@ -66,11 +74,6 @@ void Context2::RefreshData(bool isUserInput)
   if (backoff <= 0 && GetIsAutoChannelChange() && currentScreen->AllowAutoChannelChange() && dateTime.second() % 20 == 0)
   {
     currentScreen->ProcessUpdateAction(this);
-  }
-
-  if (!isUserInput)
-  {
-    currentScreen->Tick();
   }
 }
 
@@ -143,7 +146,7 @@ void Context2::SwapScreen(const Screen* newScreen)
   Screen* tobeDeleted = currentScreen;
   currentScreen = newScreen;
   delete tobeDeleted;
-  playAnimationCallback();
+  PlayAnimation();
   currentScreen->OnShow(this);
 }
 
@@ -218,6 +221,9 @@ void Context2::UserInputCommit()
 
 void Context2::RefreshDisplay()
 {
+  if (playingAnimation)
+    return;
+    
   display->clearDisplay();
   currentScreen->Render(this);
   display->display();
@@ -270,4 +276,31 @@ void Context2::drawLine(int16_t x, int16_t y, int16_t x1, int16_t y1, int16_t co
 void Context2::drawRoundRect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t radius, int16_t color)
 {
   display->drawRoundRect(x, y, w, h, radius, color);
+}
+
+void Context2::PlayAnimation()
+{
+  playingAnimation = true;
+  
+  //Draw random on/off 4 x 4 squares across screen 
+  for (int vHoldPos = SSD1306_LCDHEIGHT; vHoldPos > 0; vHoldPos--)
+  {  
+    for (int x = 0; x < SSD1306_LCDWIDTH; x += 4)  // go across the screen left to right
+    {
+      for (int y = 0; y < SSD1306_LCDHEIGHT; y += 4) //go down the screen top to bottom
+      {
+        long color = random(0, 4) % 2;  // Generate random 0 or 1.  Apparently random(0, 1) doesn't work.
+        display->fillRect(x, y, 4, 4, color);
+      }
+    }
+
+    //Draw a horizontal bar that moves up the screen to simulate vertical hold
+    display->fillRect(0, vHoldPos, SSD1306_LCDWIDTH, 15, 0);
+
+    vHoldPos -= 4;
+    
+    display->display();  //Note:  on the nano, this operation is slow enough that no delay is needed
+  }
+
+  playingAnimation = false;
 }

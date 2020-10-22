@@ -3,7 +3,7 @@ class Screen;
 class Context2 : Context
 {
 public:
-	Context2(const RTC_DS3231* rtc, const BME280* bme280, const Adafruit_SSD1306* display, const void (*playAnimationCallback)());
+	Context2(const RTC_DS3231* rtc, const BME280* bme280, const Adafruit_SSD1306* display);
 	~Context2();
 	
 private:
@@ -11,7 +11,7 @@ private:
 	BME280* bme280;
 	Adafruit_SSD1306* display;
 	Screen* currentScreen;
-	void (*playAnimationCallback)();
+	void PlayAnimation();
 	
 	DateTime dateTime;
 	

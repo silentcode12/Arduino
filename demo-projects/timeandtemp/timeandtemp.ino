@@ -21,39 +21,8 @@ float last = 0;
 Adafruit_SSD1306 display(OLED_RESET);
 RTC_DS3231 rtc;
 BME280 bme280;
-Context2 context(&rtc, &bme280, &display, &playAnimation);
+Context2 context(&rtc, &bme280, &display);
 Ema button(0.5, 1);
-
-void playAnimation()
-{
-  //Prevent the update interrupt from painting the current screen during the animation.
-  noInterrupts();
-  detachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN));
-  interrupts();
-
-  //Draw random on/off 4 x 4 squares across screen 
-  for (int vHoldPos = SSD1306_LCDHEIGHT; vHoldPos > 0; vHoldPos--)
-  {  
-    for (int x = 0; x < SSD1306_LCDWIDTH; x += 4)  // go across the screen left to right
-    {
-      for (int y = 0; y < SSD1306_LCDHEIGHT; y += 4) //go down the screen top to bottom
-      {
-        long color = random(0, 4) % 2;  // Generate random 0 or 1.  Apparently random(0, 1) doesn't work.
-        display.fillRect(x, y, 4, 4, color);
-      }
-    }
-
-    //Draw a horizontal bar that moves up the screen to simulate vertical hold
-    display.fillRect(0, vHoldPos, SSD1306_LCDWIDTH, 15, 0);
-
-    vHoldPos -= 4;
-    
-    display.display();  //Note:  on the nano, this operation is slow enough that no delay is needed
-  }
-
-  //Animation complete, allow normal screen updates.
-  attachInterrupt(digitalPinToInterrupt(RTC_SQW_PIN), pin3ISR, RISING);
-}
 
 void setup () 
 {
