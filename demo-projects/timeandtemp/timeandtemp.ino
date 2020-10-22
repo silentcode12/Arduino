@@ -1,4 +1,3 @@
-#include "commonTypes.h"
 #include <Adafruit_SSD1306.h>
 #include <RTClib.h>
 #include <SparkFunBME280.h>
@@ -96,45 +95,54 @@ void loop ()
     return;
   }
 
-  if (buttonState != s)
+  if (buttonState != s) //Did the button change state?
   {
     if (s == 1)
     {
+      //Button went from down to up, trigger button up behavior
       ButtonUp();
-      UpdateImmediate();
-      isLongPress = false;
+      isLongPress = false;  //Clear any long press detection
+      UpdateImmediate();    //Update any UI immediately to give the user immediate feedback.
     }
     else
     {
+      //Button has been pressed, record time for long press detection 
       last = millis();
     }
 
     buttonState = s;
   }
 
-  if (buttonState != 1) //button is down
+  if (buttonState == 0)
   {
       //The button is still being pressed, check  how long the button has been pressed.
       float now = millis();
       if (now - last > 2000 && !isLongPress)
       {
-        //Button has been pressed longer than the threshold, this is the first time it was detected so trigger the long press begin
-        isLongPress = true; 
+        //Button has been pressed longer than the threshold
+        isLongPress = true; //This is the first time it was detected so trigger the long press begin
         LongPressBegin();
-        UpdateImmediate();
+        UpdateImmediate();  //Update any UI immediately to give the user immediate feedback.
       }
   }
 }
 
-void ButtonUp()
+inline void ButtonUp()
 {
   if (!isLongPress)
   {
+    //Short press ended
+    //Short press is used to update a value and to trigger a screen change
     context.UserInputUpdate();
+  }
+  else
+  {
+    //Long press ended
   }
 }
 
-void LongPressBegin()
+inline void LongPressBegin()
 {
-   context.UserInputCommit();
+  //Long press begin is used to enter edit mode, toggle a simple value and commit a final value
+  context.UserInputCommit();
 }

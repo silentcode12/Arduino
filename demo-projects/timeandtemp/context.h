@@ -1,3 +1,11 @@
+//For more details, look up the design pattern called "State Pattern"
+typedef enum
+{
+  left,
+  center,
+  right
+} ALIGN;
+
 class Context
 {	
 public:
@@ -33,6 +41,7 @@ public:
 	virtual bool GetIsAutoChannelChange() = 0;
 	virtual void SetIsAutoChannelChange(bool value) = 0;
 
+  //Drawing functions
   virtual void drawText_P(const char* text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript) = 0;
   virtual void drawText(const char* text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript) = 0; 
   virtual void drawLine(int16_t x, int16_t y, int16_t x1, int16_t y1, int16_t color) = 0;

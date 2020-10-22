@@ -1,3 +1,4 @@
+//For more details, look up the design pattern called "State Pattern"
 class Context;
 
 class Screen 

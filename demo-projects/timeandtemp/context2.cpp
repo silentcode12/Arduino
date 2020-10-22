@@ -1,4 +1,3 @@
-#include "commonTypes.h"
 #include <EEPROM.h>
 #include <RTClib.h>
 #include "Adafruit_GFX.h"

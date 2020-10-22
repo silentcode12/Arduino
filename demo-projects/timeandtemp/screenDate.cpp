@@ -1,4 +1,3 @@
-#include "commonTypes.h"
 #include "arduino.h"
 #include "context.h"
 #include "screen.h"
