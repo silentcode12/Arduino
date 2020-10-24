@@ -20,6 +20,8 @@ float last = 0;
 Adafruit_SSD1306 display(OLED_RESET);
 RTC_DS3231 rtc;
 BME280 bme280;
+
+//Management objects
 Context2 context(&rtc, &bme280, &display);
 Ema button(0.5, 1);
 
@@ -143,6 +145,6 @@ inline void ButtonUp()
 
 inline void LongPressBegin()
 {
-  //Long press begin is used to enter edit mode, toggle a simple value and commit a final value
+  //Long press begin is used to enter edit mode, toggle a simple value and commit a value
   context.UserInputCommit();
 }
