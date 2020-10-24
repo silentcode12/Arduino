@@ -9,44 +9,37 @@ ScreenDateEdit::ScreenDateEdit()
   year=2020;
 }
 
+void IncrementWithBounds(byte& value, byte max, byte resetValue)
+{
+  value++;
+  if (value > max)
+    value = resetValue;
+}
+
 void ScreenDateEdit::ProcessUpdateAction(const Context* context)
 {
       //Deconstruct the year, Todo: Only do this when updated year parts
-      short thousands = (year % 10000) / 1000;
-      short hundreds = (year % 1000) / 100;
-      short tens = (year % 100) / 10;
-      short ones = year %10;
+      byte thousands = (year % 10000) / 1000;
+      byte hundreds = (year % 1000) / 100;
+      byte tens = (year % 100) / 10;
+      byte ones = year %10;
     
       switch (dateIndex)
       {
         case 0:
-          thousands++;
-          if (thousands > 9)
-            thousands = 1;
-            
+          IncrementWithBounds(thousands, 9, 1);
           break;  //update 1000s
         case 1:
-          hundreds++;
-          if (hundreds > 9)
-            hundreds = 0;
-
+          IncrementWithBounds(hundreds , 9, 0);
           break;//update 100s
         case 2:
-           tens++;
-          if (tens > 9)
-            tens = 0;
-
+          IncrementWithBounds(tens, 9, 0);
           break;//update 10s
         case 3:
-           ones++;
-          if (ones > 9)
-            ones = 0;
-
+          IncrementWithBounds(ones, 9, 0);
           break;//update 1s
         case 4:
-          month += 1;
-          if (month > 12)
-            month = 1;
+          IncrementWithBounds(month, 12, 1);
           break;//update month
         case 5:
           byte max = 0;
@@ -66,9 +59,7 @@ void ScreenDateEdit::ProcessUpdateAction(const Context* context)
               break;
           }
           
-          day += 1;
-          if (day > max)
-            day = 1;
+          IncrementWithBounds(day, max, 1);
           break;//update day
       }
 
