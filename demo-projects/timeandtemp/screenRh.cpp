@@ -15,7 +15,5 @@ void ScreenRh::Render(const Context* context)
   dtostrf(context->GetPercentRh(), 3, 1, data);
   sprintf_P(data, PSTR("%s %%"), data);
 
-  int x = 64;
-  int y = 40;
-  context->drawText(data, 3, x, y, center, false);
+  context->drawText(data, 3, 64, 40, center, false);
 }

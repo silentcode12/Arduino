@@ -229,7 +229,7 @@ void Context2::RefreshDisplay()
 }
 
 //Use this function if the text pointer is pointing to program memory.
-void Context2::drawText_P(const char* text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript) 
+void Context2::drawText_P(const char* text, int textSize, int16_t x, int16_t y, ALIGN align, bool superscript) 
 {
      char* buf = new char[strlen_P(text)+1];
      strcpy_P(buf, text);
@@ -237,7 +237,7 @@ void Context2::drawText_P(const char* text, int textSize, int16_t &x, int16_t &y
      delete[] buf;
 }
 
-void Context2::drawText(const char* text, int textSize, int16_t &x, int16_t &y, ALIGN align, bool superscript)
+void Context2::drawText(const char* text, int textSize, int16_t x, int16_t y, ALIGN align, bool superscript)
 {
   int16_t x1 = 0, y1 = 0;
   uint16_t w = 0, h = 0;

@@ -137,9 +137,7 @@ void ScreenDateEdit::Render(const Context* context)
     sprintf_P(data, PSTR("%d"), day);
   }
 
-  y = 32;
-  x = 64;  
-  context->drawText(data, 3, x, y, center, false);
+  context->drawText(data, 3, 64, 32, center, false);
 }
 
 void ScreenDateEdit::OnShow(const Context* context)

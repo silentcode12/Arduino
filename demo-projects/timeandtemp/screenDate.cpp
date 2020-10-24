@@ -19,7 +19,6 @@ void ScreenDate::Render(const Context* context)
   //display date
   char data2[17];
   sprintf_P(data2, PSTR("%S %S\n%d %d"), context->GetDayOfWeek(), monthOfYear[month-1], day, year);
-  int x = 0;
-  int y = 16;
-  context->drawText(data2, 3, x, y, left, false);
+
+  context->drawText(data2, 3, 0, 16, left, false);
 }

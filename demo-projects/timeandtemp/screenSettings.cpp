@@ -87,7 +87,5 @@ void ScreenSettings::Render(const Context* context)
     sprintf(data2, data3, context->GetIsAutoChannelChange() ? "on" : "off");
   }
   
-  int x = 64;
-  int y = 32;
-  context->drawText(data2, 2, x, y, center, false);
+  context->drawText(data2, 2, 64, 32, center, false);
 }

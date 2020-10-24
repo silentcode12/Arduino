@@ -27,7 +27,5 @@ void ScreenTemp::Render(const Context* context)
     sprintf_P(data, PSTR("%s F"), data);
   }
   
-  int x = 64;
-  int y = 40;
-  context->drawText(data, 3, x, y, center, false);
+  context->drawText(data, 3, 64, 40, center, false);
 }

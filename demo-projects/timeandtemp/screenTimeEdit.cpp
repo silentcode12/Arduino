@@ -50,9 +50,8 @@ void ScreenTimeEdit::ProcessCommitAction(const Context* context)
 void ScreenTimeEdit::Render(const Context* context)
 {
   int x, y;
-  x = y = 10;
- // drawText_P(display, PSTR("Edit time"), 1, x, y, left, false);
-  y += 20;
+  x = 10;
+  y = 30;
 
   char data[10];
   if (context->GetIs24Hour())

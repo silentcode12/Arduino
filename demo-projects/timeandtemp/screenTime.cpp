@@ -22,7 +22,5 @@ void ScreenTime::Render(const Context* context)
   else
     sprintf_P(data, PSTR("%02d%c%02d %s"), hour > 12 ? hour - 12 : hour, tick, minute, hour > 12 ? "P" : "A");
 
-  int x = 64;
-  int y = 40;
-  context->drawText(data, context->GetIs24Hour() ? 4 : 3, x, y, center, false);
+  context->drawText(data, context->GetIs24Hour() ? 4 : 3, 64, 40, center, false);
 }
