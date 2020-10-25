@@ -16,6 +16,22 @@ void IncrementWithBounds(byte& value, byte max, byte resetValue)
     value = resetValue;
 }
 
+byte ScreenDateEdit::GetMonthDays()
+{
+  switch(month)
+  {
+    case 2:
+      return IsLeapYear() ? 29 : 28;  //Feb2
+    case 4:
+    case 6:
+    case 9:
+    case 11:
+      return 30;   //Apr4 Jun6 Sep9 Nov11
+    default:
+      return 31; //Jan1 Mar3 May5 Jul7 Aug8 Oct10 Dec12
+  }
+}
+
 void ScreenDateEdit::ProcessUpdateAction(const Context* context)
 {
       //Deconstruct the year, Todo: Only do this when updated year parts
@@ -41,25 +57,8 @@ void ScreenDateEdit::ProcessUpdateAction(const Context* context)
         case editMonth:
           IncrementWithBounds(month, 12, 1);
           break;//update month
-        case editDay:
-          byte max = 0;
-          switch(month)
-          {
-            case 2:
-              max = IsLeapYear(year) ? 29 : 28;
-              break;
-            case 4:
-            case 6:
-            case 9:
-            case 11:
-              max = 30;   //Apr4 Jun6 Sep9 Nov11
-              break;
-            default:
-              max = 31; //Jan1 Mar3 May5 Jul7 Aug8 Oct10 Dec12
-              break;
-          }
-          
-          IncrementWithBounds(day, max, 1);
+        case editDay:         
+          IncrementWithBounds(day, GetMonthDays(), 1);
           break;//update day
       }
 
@@ -77,6 +76,14 @@ void ScreenDateEdit::ProcessCommitAction(const Context* context)
   else
   {
     editState = editState + 1;
+    if (editState == editDay)
+    {
+      if (day > GetMonthDays())
+      {
+        //If previous day is outside of new month, reset to day one
+        day = 1;
+      }
+    }
   }
 }
 
@@ -135,7 +142,7 @@ bool ScreenDateEdit::AllowAutoChannelChange()
   return false;
 }
 
-bool ScreenDateEdit::IsLeapYear(short year)
+bool ScreenDateEdit::IsLeapYear()
 {
     return ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) ?
       true :

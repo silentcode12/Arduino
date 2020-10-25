@@ -11,11 +11,13 @@ enum dateEditState
 class ScreenDateEdit : public Screen
 {
 private:
-	bool IsLeapYear(short year);
-	short year;
-	byte month;
-	byte day;
-	dateEditState editState;
+  bool IsLeapYear();
+  byte GetMonthDays();
+  
+  short year;
+  byte month;
+  byte day;
+  dateEditState editState;
 public:
 	ScreenDateEdit();
 	void ProcessUpdateAction(const Context* context) override;
