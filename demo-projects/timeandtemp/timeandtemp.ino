@@ -58,7 +58,7 @@ void setup ()
 
 void UpdateContext(bool isUserInput)
 {
-  static boolean IsRunning = false;
+  static volatile boolean IsRunning = false;
   if(IsRunning) 
     return;
   
