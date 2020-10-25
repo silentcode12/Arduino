@@ -5,7 +5,7 @@
 
 ScreenDateEdit::ScreenDateEdit()
 {
-  dateIndex = 0;
+  editState = editYearThousands;
   year=2020;
 }
 
@@ -24,24 +24,24 @@ void ScreenDateEdit::ProcessUpdateAction(const Context* context)
       byte tens = (year % 100) / 10;
       byte ones = year %10;
     
-      switch (dateIndex)
+      switch (editState)
       {
-        case 0:
+        case editYearThousands:
           IncrementWithBounds(thousands, 9, 1);
           break;  //update 1000s
-        case 1:
+        case editYearHundreds:
           IncrementWithBounds(hundreds , 9, 0);
           break;//update 100s
-        case 2:
+        case editYearTens:
           IncrementWithBounds(tens, 9, 0);
           break;//update 10s
-        case 3:
+        case editYearOnes:
           IncrementWithBounds(ones, 9, 0);
           break;//update 1s
-        case 4:
+        case editMonth:
           IncrementWithBounds(month, 12, 1);
           break;//update month
-        case 5:
+        case editDay:
           byte max = 0;
           switch(month)
           {
@@ -69,22 +69,15 @@ void ScreenDateEdit::ProcessUpdateAction(const Context* context)
 
 void ScreenDateEdit::ProcessCommitAction(const Context* context)
 {
-    dateIndex++;
-    switch (dateIndex)
-    {
-      case 0: break;
-      case 1: break;
-      case 2: break;
-      case 3: break;
-      case 4: break;
-      case 5: break;
-      default: 
-      {
-        context->SetDate(year, month, day);
-        context->GotoDateScreen();
-        break;
-      }
-    }
+  if (editState == editDay)
+  {
+    context->SetDate(year, month, day);
+    context->GotoDateScreen();
+  }
+  else
+  {
+    editState = editState + 1;
+  }
 }
 
 void ScreenDateEdit::Render(const Context* context)
@@ -94,7 +87,7 @@ void ScreenDateEdit::Render(const Context* context)
   x = 0;
   y = 0;
   char data[6];
-  if(dateIndex <= 3)
+  if(editState <= editYearOnes)
   {
     //set year
     context->drawText_P(PSTR("Year"), 1, x, y, left, false);
@@ -105,22 +98,22 @@ void ScreenDateEdit::Render(const Context* context)
     {
       x = 30;
       x = x 
-      + (dateIndex * w) //numeric digits width
-      + (dateIndex * w / 2);  //divider width
+      + (editState * w) //numeric digits width
+      + (editState * w / 2);  //divider width
       int x1 = x + w;  // underline the two digits
       context->drawLine(x, y, x1, y, 1);
     }
 
     sprintf_P(data, PSTR("%d"), year);
   }
-  else if (dateIndex == 4)
+  else if (editState == editMonth)
   {
     //set month
     context->drawText_P(PSTR("Month"), 1, x, y, left, false);
 
     sprintf_P(data, PSTR("%d"), month);
   }
-  else if (dateIndex == 5)
+  else if (editState == editDay)
   {
     //set day
     context->drawText_P(PSTR("Day"), 1, x, y, left, false);
@@ -134,7 +127,7 @@ void ScreenDateEdit::Render(const Context* context)
 void ScreenDateEdit::OnShow(const Context* context)
 {
   context->GetDate(year, month, day);
-  dateIndex = 0;
+  editState = editYearThousands;
 }
 
 bool ScreenDateEdit::AllowAutoChannelChange()

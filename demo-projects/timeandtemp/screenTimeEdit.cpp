@@ -5,26 +5,26 @@
 
 ScreenTimeEdit::ScreenTimeEdit()
 {
-  timeIndex = 0;
+  editState = editHour;
 }
 
 void ScreenTimeEdit::ProcessUpdateAction(const Context* context)
 {
-  switch(timeIndex)
+  switch(editState)
     {
-      case 0: 
+      case editHour: 
         if (hour >= 23)
           hour = 0;
 
         hour++;
         break;
-      case 1: 
+      case editMinute: 
         if(minute >= 59)
           minute = -1;
 
         minute++;
         break;
-      case 2:
+      case editSecond:
         second = 0; //Note:  reset seconds to zero for synchronization, will count up
         return;
     }
@@ -32,18 +32,14 @@ void ScreenTimeEdit::ProcessUpdateAction(const Context* context)
 
 void ScreenTimeEdit::ProcessCommitAction(const Context* context)
 {
-  timeIndex++;
-  switch (timeIndex)
+  if (editState == editSecond)
   {
-    case 0: break;
-    case 1: break;
-    case 2: break;
-    default: 
-    {
-      context->SetTime(hour, minute, second);
-      context->GotoTimeScreen();
-      break;
-    }
+     context->SetTime(hour, minute, second);
+     context->GotoTimeScreen();
+  }
+  else
+  {
+    editState = editState + 1;
   }
 }
 
@@ -69,8 +65,8 @@ void ScreenTimeEdit::Render(const Context* context)
   for(y=45; y <48; y ++)
   {
     x = 10 
-    + (timeIndex * w) //numeric digits width
-    + (timeIndex * w / 2);  //divider width
+    + (editState * w) //numeric digits width
+    + (editState * w / 2);  //divider width
     int x1 = x + w;  // underline the two digits
     context->drawLine(x, y, x1, y, 1);
   }
@@ -80,7 +76,7 @@ void ScreenTimeEdit::OnShow(const Context* context)
 {
   context->GetTime(hour, minute, second);
   second = 0;
-  timeIndex = 0;
+  editState = editHour;
 }
 
 bool ScreenTimeEdit::AllowAutoChannelChange()
@@ -90,7 +86,7 @@ bool ScreenTimeEdit::AllowAutoChannelChange()
 
 void ScreenTimeEdit::Tick()
 {
-  if (timeIndex == 2)
+  if (editState == editSecond)
   {
     if (second + 1 > 59)
       second = 0;

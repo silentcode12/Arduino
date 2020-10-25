@@ -3,35 +3,36 @@
 #include "screen.h"
 #include "screenSettings.h"
 
-#define MENUITEMCOUNT 6
+#define MENU_ITEM_COUNT 6
+#define MAX_MENU_ITEM_LENGTH 9
 
-const char menuItems[MENUITEMCOUNT][9] PROGMEM = {"Set Time", "Set Date", "CLK %shr" , "Temp %s", "ACC %s",  "Exit"};  //Stored in flash, read out using sprintf_P with %S
-
+const char menuItems[MENU_ITEM_COUNT][MAX_MENU_ITEM_LENGTH] PROGMEM = {"Set Time", "Set Date", "CLK %shr" , "Temp %s", "ACC %s",  "Exit"};  //Stored in flash, read out using sprintf_P with %S
 
 void ScreenSettings::ProcessUpdateAction(const Context* context)
 {
-    current++;
-    if (current >= MENUITEMCOUNT)
-      current = 0;
+  if (activeMenuItem == setExit)
+    activeMenuItem = setTime;
+  else
+    activeMenuItem = activeMenuItem + 1;
 }
 
 void ScreenSettings::ProcessCommitAction(const Context* context)
 {
-   switch(current)
+   switch(activeMenuItem)
    {
-    case 0:  //time
+    case setTime:  //time
       context->GotoTimeEditScreen();
       break;
-    case 1: //date
+    case setDate: //date
       context->GotoDateEditScreen();
       break;
-    case 2: //clk
+    case setClock: //clk
       context->SetIs24Hour(!context->GetIs24Hour());
       break;
-    case 3: //metric
+    case setUnits: //metric
       context->SetIsMetric(!context->GetIsMetric());
       break;
-    case 4: //Auto channel change
+    case setAutoChannelChange: //Auto channel change
       context->SetIsAutoChannelChange(!context->GetIsAutoChannelChange());
       break;
     default: //exit
@@ -42,7 +43,7 @@ void ScreenSettings::ProcessCommitAction(const Context* context)
 
 void ScreenSettings::OnShow(const Context* context)
 {
-    current = 0;
+    activeMenuItem = setTime;
 }
 
 bool ScreenSettings::AllowAutoChannelChange()
@@ -62,30 +63,28 @@ void ScreenSettings::Render(const Context* context)
 {
   context->drawRoundRect(x0, y0, w, h, radius, color);
   
-  char data2[ARRAY_SIZE];
-  sprintf_P(data2, PSTR("%S"), menuItems[current]);
+  char data[ARRAY_SIZE];
+  sprintf_P(data, PSTR("%S"), menuItems[activeMenuItem]);
 
-  if (current == 2)
+  if (activeMenuItem == setClock)
   {
-    char data3[10];
-    for(int x=0;x<ARRAY_SIZE;x++)
-      data3[x]=data2[x];
-    sprintf(data2, data3, context->GetIs24Hour() ? "24" : "12");
+    //data contains a format specification, use it to add dynamic data
+    char fmt[ARRAY_SIZE];  
+    strcpy(fmt, data);
+    sprintf(data, fmt, context->GetIs24Hour() ? "24" : "12");
   }
-  else if (current == 3)
+  else if (activeMenuItem == setUnits)
   {
-    char data3[ARRAY_SIZE];
-    for(int x=0;x<ARRAY_SIZE;x++)
-      data3[x]=data2[x];
-    sprintf(data2, data3, context->GetIsMetric() ? "C" : "F");
+    char fmt[ARRAY_SIZE];
+    strcpy(fmt, data);
+    sprintf(data, fmt, context->GetIsMetric() ? "C" : "F");
   }
-  else if (current == 4)
+  else if (activeMenuItem == setAutoChannelChange)
   {
-    char data3[ARRAY_SIZE];
-    for(int x=0;x<ARRAY_SIZE;x++)
-      data3[x]=data2[x];
-    sprintf(data2, data3, context->GetIsAutoChannelChange() ? "on" : "off");
+    char fmt[ARRAY_SIZE];
+    strcpy(fmt, data);
+    sprintf(data, fmt, context->GetIsAutoChannelChange() ? "on" : "off");
   }
   
-  context->drawText(data2, 2, 64, 32, center, false);
+  context->drawText(data, 2, 64, 32, center, false);
 }

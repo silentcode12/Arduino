@@ -1,7 +1,17 @@
+enum menuItem
+{
+  setTime = 0,
+  setDate = 1,
+  setClock = 2,
+  setUnits = 3,
+  setAutoChannelChange = 4,
+  setExit = 5
+};
+
 class ScreenSettings : public Screen
 {
 private:
-	int current=0;
+	menuItem activeMenuItem = setTime;
 	
 public:
 	void ProcessUpdateAction(const Context* context) override;

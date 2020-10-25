@@ -1,3 +1,13 @@
+enum dateEditState
+{
+  editYearThousands = 0,
+  editYearHundreds = 1,
+  editYearTens = 2,
+  editYearOnes = 3,
+  editMonth = 4,
+  editDay = 5
+};
+
 class ScreenDateEdit : public Screen
 {
 private:
@@ -5,7 +15,7 @@ private:
 	short year;
 	byte month;
 	byte day;
-	byte dateIndex;
+	dateEditState editState;
 public:
 	ScreenDateEdit();
 	void ProcessUpdateAction(const Context* context) override;

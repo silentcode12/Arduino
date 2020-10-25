@@ -1,10 +1,17 @@
+enum timeEditState
+{
+  editHour = 0,
+  editMinute = 1,
+  editSecond = 2
+};
+
 class ScreenTimeEdit : public Screen
 {
 private:
 	byte hour;
 	byte minute;
 	byte second;
-	byte timeIndex;
+	timeEditState editState;
 public:
 	ScreenTimeEdit();
 	void ProcessUpdateAction(const Context* context) override;
