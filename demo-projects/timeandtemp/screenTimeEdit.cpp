@@ -14,15 +14,15 @@ void ScreenTimeEdit::ProcessUpdateAction(const Context* context)
     {
       case editHour: 
         if (hour >= 23)
-          hour = 0;
-
-        hour++;
+          hour = 1;
+        else
+          hour++;
         break;
       case editMinute: 
         if(minute >= 59)
-          minute = -1;
-
-        minute++;
+          minute = 0;
+        else
+          minute++;
         break;
       case editSecond:
         second = 0; //Note:  reset seconds to zero for synchronization, will count up
