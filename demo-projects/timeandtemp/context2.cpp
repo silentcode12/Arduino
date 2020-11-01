@@ -23,13 +23,14 @@
 //EEPROM memory mappings
 byte settings EEMEM = {0}; //todo:  Figure out how to initialize eeprom memory at flash time.  looks like a separate binary file...
 
-#define TEMP_CORRECTION -10.0
+#define TEMP_CORRECTION -9.0
 
-const char daysOfTheWeek[7][4] PROGMEM = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};  //Stored in flash, read out using sprintf_P with %S
+const char dayStrings[7][4] PROGMEM = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};  //Stored in flash, read out using sprintf_P with %S
+const char monthStrings[12][4] PROGMEM = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};  //Stored in flash, read out using sprintf_P with %S
 
 Context2::Context2(const RTC_DS3231* rtc, const BME280* bme280, const Adafruit_SSD1306* display) : 
 percentRH (0.1, 0),
-temperature (0.9, 0)
+temperature (0.1, 0)
 {
   this->rtc = rtc;
   this->bme280 = bme280;
@@ -76,16 +77,27 @@ void Context2::RefreshData(bool isUserInput)
   }
 }
 
-void Context2::GetDate(short& year, byte& month, byte& day)
+void Context2::GetDate(short& year, byte& month, byte& day, byte& dayOfWeek)
 {
   year = dateTime.year();
   month = (byte)dateTime.month();
   day = (byte)dateTime.day();
+  dayOfWeek = (byte)dateTime.dayOfTheWeek();
 }
 
 void Context2::SetDate(const short& year, const byte& month, const byte& day)
 {
   rtc->adjust(DateTime(year, month, day, dateTime.hour(), dateTime.minute(), dateTime.second()));
+}
+
+const char* Context2::GetDayString_P(byte dayIndex)
+{
+  return dayStrings[dayIndex];
+}
+
+const char* Context2::GetMonthString_P(byte monthIndex)
+{
+  return monthStrings[monthIndex];
 }
 
 void Context2::GetTime(byte& hour, byte& minute, byte& second)
@@ -98,11 +110,6 @@ void Context2::GetTime(byte& hour, byte& minute, byte& second)
 void Context2::SetTime(const byte& hour, const byte& minute, const byte& second)
 {
   rtc->adjust(DateTime(dateTime.year(), dateTime.month(), dateTime.day(), hour, minute, second));
-}
-
-const char* Context2::GetDayOfWeek()
-{
-  return daysOfTheWeek[dateTime.dayOfTheWeek()];
 }
 
 void Context2::GotoDateScreen()

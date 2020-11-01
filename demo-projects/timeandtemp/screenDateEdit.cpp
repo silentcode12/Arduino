@@ -118,7 +118,7 @@ void ScreenDateEdit::Render(const Context* context)
     //set month
     context->drawText_P(PSTR("Month"), 1, x, y, left, false);
 
-    sprintf_P(data, PSTR("%d"), month);
+    sprintf_P(data, PSTR("%S"), context->GetMonthString_P(month - 1));
   }
   else if (editState == editDay)
   {
@@ -133,7 +133,8 @@ void ScreenDateEdit::Render(const Context* context)
 
 void ScreenDateEdit::OnShow(const Context* context)
 {
-  context->GetDate(year, month, day);
+  byte dayOfWeek;
+  context->GetDate(year, month, day, dayOfWeek);
   editState = editYearThousands;
 }
 

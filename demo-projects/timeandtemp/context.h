@@ -10,13 +10,14 @@ class Context
 {	
 public:
 	//Data methods
-	virtual void GetDate(short& year, byte& month, byte& day) = 0;
+	virtual void GetDate(short& year, byte& month, byte& day, byte& dayOfWeek) = 0;
 	virtual void SetDate(const short& year, const byte& month, const byte& day) = 0;
 	
 	virtual void GetTime(byte& hour, byte& minute, byte& second) = 0;
 	virtual void SetTime(const byte& hour, const byte& minute, const byte& second) = 0;
 	
-	virtual const char* GetDayOfWeek() = 0;
+	virtual const char* GetDayString_P(byte dayIndex) = 0;
+  virtual const char* GetMonthString_P(byte monthIndex) = 0;
 
 	virtual float GetPercentRh() = 0;
 	
