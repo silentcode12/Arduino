@@ -59,10 +59,10 @@ bool ScreenSettings::AllowAutoChannelChange()
 #define color 1
 #define ARRAY_SIZE 10
 
-void ExpandFormatString(char* dest, const char* src, const char* additionalData)
+void ExpandFormatString(char* dest, const char* additionalData)
 {
     char fmt[ARRAY_SIZE];  
-    strcpy(fmt, src);
+    strcpy(fmt, dest);
     sprintf(dest, fmt, additionalData);
 }
 
@@ -76,15 +76,15 @@ void ScreenSettings::Render(const Context* context)
   if (activeMenuItem == setClock)
   {
     //data contains a format specification, use it to add dynamic data
-    ExpandFormatString(data, data, context->GetIs24Hour() ? "24" : "12");
+    ExpandFormatString(data, context->GetIs24Hour() ? "24" : "12");
   }
   else if (activeMenuItem == setUnits)
   {
-    ExpandFormatString(data, data, context->GetIsMetric() ? "C" : "F");
+    ExpandFormatString(data, context->GetIsMetric() ? "C" : "F");
   }
   else if (activeMenuItem == setAutoChannelChange)
   {
-    ExpandFormatString(data, data, context->GetIsAutoChannelChange() ? "on" : "off");
+    ExpandFormatString(data, context->GetIsAutoChannelChange() ? "on" : "off");
   }
   
   context->drawText(data, 2, 64, 32, center, false);
